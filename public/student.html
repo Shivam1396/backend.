@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apoorv — Submit Document</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --ink:#0d0d0d; --cream:#f5f0e8; --gold:#c9a84c; --gold-lt:#e8d5a3;
+            --white:#ffffff; --muted:#6b6560; --border:rgba(13,13,13,0.10);
+            --sidebar-w:200px; --green:#3B6D11; --orange:#854F0B; --red:#A12B2B; --blue:#185FA5;
+        }
+        body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--ink); height:100vh; overflow:hidden; display:flex; }
+
+        /* Sidebar */
+        .sidebar { width:var(--sidebar-w); flex-shrink:0; background:var(--ink); height:100vh; display:flex; flex-direction:column; position:relative; overflow:hidden; }
+        .sidebar::after { content:''; position:absolute; top:0; right:0; bottom:0; width:1px; background:linear-gradient(180deg,transparent,var(--gold),transparent); opacity:0.4; }
+        .sidebar-logo { padding:28px 24px 24px; border-bottom:1px solid rgba(255,255,255,0.07); }
+        .logo-text { font-family:'Playfair Display',serif; font-size:26px; font-weight:900; color:var(--white); letter-spacing:-1px; line-height:1; }
+        .logo-text span { color:var(--gold); }
+        .logo-sub { font-size:9px; color:rgba(255,255,255,0.3); letter-spacing:2px; text-transform:uppercase; margin-top:5px; }
+        .sidebar-nav { flex:1; padding:28px 0; display:flex; flex-direction:column; gap:4px; }
+        .nav-item { display:flex; align-items:center; gap:11px; padding:12px 24px; font-size:13px; color:rgba(255,255,255,0.45); cursor:pointer; transition:color 0.2s,background 0.2s; text-decoration:none; position:relative; }
+        .nav-item:hover { color:rgba(255,255,255,0.85); background:rgba(255,255,255,0.04); }
+        .nav-item.active { color:var(--white); background:rgba(201,168,76,0.12); }
+        .nav-item.active::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--gold); }
+        .nav-icon { width:16px; height:16px; opacity:0.7; flex-shrink:0; }
+        .nav-item.active .nav-icon { opacity:1; }
+        .sidebar-footer { padding:20px 24px; border-top:1px solid rgba(255,255,255,0.07); }
+        .sidebar-user { display:flex; align-items:center; gap:10px; }
+        .user-avatar { width:32px; height:32px; border-radius:50%; background:rgba(201,168,76,0.2); border:1.5px solid var(--gold); display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; color:var(--gold); flex-shrink:0; }
+        .user-info { flex:1; min-width:0; }
+        .user-name { font-size:11px; font-weight:500; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .user-role { font-size:10px; color:rgba(255,255,255,0.35); }
+        .logout-link { display:block; margin-top:12px; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,0.3); text-align:center; cursor:pointer; transition:color 0.2s; text-decoration:none; }
+        .logout-link:hover { color:#e08080; }
+
+        /* Main */
+        .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+        .topbar { height:60px; background:var(--cream); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 36px; flex-shrink:0; }
+        .topbar-title { display:flex; align-items:center; gap:10px; }
+        .topbar-eyebrow { font-size:10px; font-weight:500; letter-spacing:2.5px; text-transform:uppercase; color:var(--muted); }
+        .topbar-sep { color:var(--border); font-size:16px; }
+        .topbar-page { font-size:13px; font-weight:500; color:var(--ink); }
+        .topbar-date { font-size:12px; color:var(--muted); }
+        .page-body { flex:1; overflow-y:auto; padding:32px 36px; }
+        .page-header { margin-bottom:28px; }
+        .page-h1 { font-family:'Playfair Display',serif; font-size:28px; font-weight:900; color:var(--ink); letter-spacing:-1px; line-height:1.1; }
+        .page-h1 span { color:var(--gold); font-style:italic; }
+        .page-desc { font-size:13px; color:var(--muted); margin-top:5px; font-weight:300; }
+
+        /* Grid */
+        .content-grid { display:grid; grid-template-columns:1fr 360px; gap:24px; align-items:start; }
+        .card { background:var(--white); border:1px solid var(--border); }
+        .card-header { padding:18px 24px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+        .card-header-icon { width:30px; height:30px; background:rgba(201,168,76,0.1); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .card-title { font-size:14px; font-weight:500; color:var(--ink); }
+        .card-subtitle { font-size:12px; color:var(--muted); margin-top:2px; }
+        .card-body { padding:24px; }
+
+        /* Dropzone */
+        .dropzone { border:2px dashed rgba(13,13,13,0.15); padding:40px 24px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; cursor:pointer; transition:border-color 0.2s,background 0.2s; margin-bottom:20px; position:relative; }
+        .dropzone:hover,.dropzone.drag-over { border-color:var(--gold); background:rgba(201,168,76,0.04); }
+        .dropzone input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+        .drop-icon { width:44px; height:44px; margin-bottom:14px; opacity:0.35; }
+        .drop-title { font-size:14px; font-weight:500; color:var(--ink); margin-bottom:5px; }
+        .drop-sub { font-size:12px; color:var(--muted); line-height:1.6; }
+        .drop-sub em { color:var(--gold); font-style:normal; font-weight:500; }
+        .upload-progress { display:none; margin-bottom:14px; }
+        .upload-progress.show { display:block; }
+        .progress-bar-track { height:4px; background:var(--border); border-radius:2px; overflow:hidden; }
+        .progress-bar-fill { height:100%; background:var(--gold); width:0%; transition:width 0.3s ease; border-radius:2px; }
+        .progress-label { font-size:11px; color:var(--muted); margin-top:6px; display:flex; justify-content:space-between; }
+
+        /* Form */
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+        .form-field { display:flex; flex-direction:column; gap:6px; }
+        .form-field.full { grid-column:1/-1; }
+        .form-field label { font-size:10px; font-weight:500; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
+        .form-field input,.form-field select,.form-field textarea { font-family:'DM Sans',sans-serif; font-size:13px; color:var(--ink); background:var(--cream); border:1.5px solid var(--border); padding:9px 12px; outline:none; transition:border-color 0.2s,box-shadow 0.2s; appearance:none; -webkit-appearance:none; border-radius:0; }
+        .form-field input::placeholder,.form-field textarea::placeholder { color:rgba(13,13,13,0.3); }
+        .form-field input:focus,.form-field select:focus,.form-field textarea:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,168,76,0.12); }
+        .form-field textarea { resize:vertical; min-height:72px; }
+        .select-wrap { position:relative; }
+        .select-wrap::after { content:''; position:absolute; right:12px; top:50%; transform:translateY(-50%); width:0; height:0; border-left:4px solid transparent; border-right:4px solid transparent; border-top:4px solid var(--muted); pointer-events:none; }
+
+        /* Faculty */
+        .faculty-section { border:1.5px solid var(--border); background:var(--cream); padding:16px 18px; margin-bottom:14px; }
+        .faculty-section-title { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; }
+        .faculty-chain { display:flex; flex-direction:column; gap:8px; }
+        .faculty-row { display:flex; align-items:center; gap:10px; }
+        .faculty-rank { width:26px; height:26px; background:var(--gold); color:var(--ink); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .faculty-rank.rank-2 { background:rgba(201,168,76,0.5); }
+        .faculty-rank.rank-3 { background:rgba(201,168,76,0.35); }
+        .faculty-rank.rank-4 { background:rgba(201,168,76,0.22); }
+        .faculty-rank.rank-5 { background:rgba(201,168,76,0.14); }
+        .faculty-row input { flex:1; font-family:'DM Sans',sans-serif; font-size:13px; color:var(--ink); background:var(--white); border:1.5px solid var(--border); padding:8px 12px; outline:none; transition:border-color 0.2s,box-shadow 0.2s; border-radius:0; }
+        .faculty-row input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,168,76,0.12); }
+        .faculty-row input::placeholder { color:rgba(13,13,13,0.3); }
+        .faculty-hint { font-size:11px; color:var(--muted); margin-top:10px; line-height:1.5; padding-top:10px; border-top:1px solid var(--border); }
+        .btn-outline { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; background:transparent; border:1.5px solid var(--border); color:var(--ink); font-family:'DM Sans',sans-serif; font-size:10px; font-weight:500; letter-spacing:1.5px; text-transform:uppercase; cursor:pointer; transition:border-color 0.2s,background 0.2s; }
+        .btn-outline:hover { border-color:var(--gold); background:rgba(201,168,76,0.05); }
+
+        /* Urgent / Submit */
+        .urgent-row { display:flex; align-items:center; gap:10px; margin-bottom:18px; padding:11px 14px; border:1.5px solid var(--border); background:var(--cream); cursor:pointer; user-select:none; transition:border-color 0.2s; }
+        .urgent-row:hover { border-color:var(--gold); }
+        .urgent-row input[type="checkbox"] { accent-color:var(--gold); width:15px; height:15px; cursor:pointer; }
+        .urgent-row label { font-size:13px; font-weight:500; cursor:pointer; }
+        .urgent-row span { font-size:11px; color:var(--muted); margin-left:auto; }
+        .btn-submit { width:100%; height:46px; background:var(--gold); color:var(--ink); font-family:'DM Sans',sans-serif; font-size:11px; font-weight:500; letter-spacing:2px; text-transform:uppercase; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; transition:background 0.2s,transform 0.15s; }
+        .btn-submit:hover:not(:disabled) { background:var(--gold-lt); transform:translateY(-1px); }
+        .btn-submit:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+        .spinner { width:16px; height:16px; border:2px solid rgba(13,13,13,0.2); border-top-color:var(--ink); border-radius:50%; animation:spin 0.7s linear infinite; display:none; }
+        .btn-submit.loading .spinner { display:block; }
+        .btn-submit.loading .btn-text { display:none; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        /* Right panel */
+        .right-panel { display:flex; flex-direction:column; gap:16px; }
+        .status-bar { background:var(--white); border:1px solid var(--border); display:grid; grid-template-columns:1fr 1fr 1fr; }
+        .stat-cell { text-align:center; padding:16px 8px; }
+        .stat-cell:not(:last-child) { border-right:1px solid var(--border); }
+        .stat-num { font-family:'Playfair Display',serif; font-size:28px; font-weight:900; letter-spacing:-1px; }
+        .stat-num.total { color:var(--ink); }
+        .stat-num.approved { color:#3B6D11; }
+        .stat-num.pending { color:#854F0B; }
+        .stat-label { font-size:9px; font-weight:500; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-top:3px; }
+
+        /* Submissions list */
+        .submissions-card { background:var(--white); border:1px solid var(--border); }
+        .submissions-list { display:flex; flex-direction:column; }
+        .submission-item { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; gap:12px; transition:background 0.15s; cursor:pointer; }
+        .submission-item:last-child { border-bottom:none; }
+        .submission-item:hover { background:rgba(201,168,76,0.04); }
+        .sub-file-icon { width:34px; height:34px; background:rgba(201,168,76,0.1); display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+        .sub-info { flex:1; min-width:0; }
+        .sub-name { font-size:13px; font-weight:500; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .sub-file-name { font-size:11px; color:var(--gold); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:500; }
+        .sub-meta { font-size:11px; color:var(--muted); margin-top:2px; }
+        .sub-status { flex-shrink:0; font-size:9px; font-weight:600; letter-spacing:1px; text-transform:uppercase; padding:3px 9px; align-self:flex-start; margin-top:2px; }
+        .status-approved { background:rgba(59,109,17,0.1); color:#3B6D11; }
+        .status-pending  { background:rgba(133,79,11,0.1); color:#854F0B; }
+        .status-rejected { background:rgba(161,43,43,0.1); color:#A12B2B; }
+        .empty-state { text-align:center; padding:32px 20px; color:var(--muted); font-size:13px; }
+        .empty-state svg { opacity:0.2; display:block; margin:0 auto 12px; }
+
+        /* Submission Detail Modal */
+        .detail-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:300; padding:20px; }
+        .detail-overlay.open { display:flex; }
+        .detail-box { background:var(--white); border:1px solid var(--border); width:100%; max-width:560px; max-height:85vh; overflow-y:auto; box-shadow:0 24px 64px rgba(0,0,0,0.18); }
+        .detail-header { padding:18px 22px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:var(--white); z-index:1; }
+        .detail-title { font-family:'Playfair Display',serif; font-size:17px; font-weight:700; }
+        .modal-close { background:none; border:none; font-size:22px; cursor:pointer; color:var(--muted); line-height:1; }
+        .detail-body { padding:22px; }
+        .detail-section { margin-bottom:18px; }
+        .detail-label { font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+        .detail-value { font-size:13px; color:var(--ink); line-height:1.6; }
+        .detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:18px; }
+        .detail-field { background:var(--cream); border:1px solid var(--border); padding:10px 12px; }
+        .chain-timeline { display:flex; flex-direction:column; gap:10px; }
+        .chain-step-row { display:flex; align-items:center; gap:12px; padding:10px 12px; border:1px solid var(--border); }
+        .chain-step-dot { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; }
+        .dot-approved { background:#3B6D11; color:#fff; }
+        .dot-pending  { background:var(--gold); color:var(--ink); }
+        .dot-waiting  { background:rgba(13,13,13,0.12); color:var(--muted); }
+        .dot-rejected { background:#A12B2B; color:#fff; }
+        .chain-step-info { flex:1; }
+        .chain-step-id { font-size:13px; font-weight:600; }
+        .chain-step-status { font-size:11px; color:var(--muted); margin-top:2px; }
+        .chain-arrow { font-size:11px; color:var(--muted); opacity:0.4; padding-left:40px; }
+        .rejection-note { margin-top:6px; padding:8px 10px; background:rgba(161,43,43,0.06); border-left:3px solid #A12B2B; font-size:12px; color:#A12B2B; }
+
+        /* Profile / Status Panels */
+        .profile-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.35); display:none; z-index:200; }
+        .profile-overlay.open { display:block; }
+        .profile-panel { position:fixed; top:0; right:-340px; width:320px; height:100vh; background:var(--white); border-left:1px solid var(--border); box-shadow:-8px 0 32px rgba(0,0,0,0.12); transition:right 0.3s cubic-bezier(0.4,0,0.2,1); z-index:201; display:flex; flex-direction:column; overflow:hidden; }
+        .profile-panel.open { right:0; }
+        .profile-panel-header { padding:24px 24px 20px; border-bottom:1px solid var(--border); background:var(--ink); display:flex; align-items:center; justify-content:space-between; }
+        .profile-panel-title { font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:var(--white); }
+        .panel-close { background:none; border:none; color:rgba(255,255,255,0.5); font-size:22px; cursor:pointer; line-height:1; }
+        .panel-close:hover { color:var(--white); }
+        .profile-panel-body { flex:1; overflow-y:auto; padding:28px 24px; }
+        .profile-avatar-large { width:72px; height:72px; border-radius:50%; background:rgba(201,168,76,0.15); border:2px solid var(--gold); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:var(--gold); margin:0 auto 16px; }
+        .profile-name { text-align:center; font-size:15px; font-weight:700; color:var(--ink); margin-bottom:4px; }
+        .profile-uni { text-align:center; font-size:11px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:24px; }
+        .profile-divider { height:1px; background:var(--border); margin:20px 0; }
+        .profile-field { margin-bottom:16px; }
+        .profile-field-label { font-size:9px; font-weight:500; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+        .profile-field-value { font-size:14px; font-weight:500; color:var(--ink); word-break:break-all; }
+        .profile-loading { text-align:center; padding:40px 0; color:var(--muted); font-size:13px; }
+        .profile-loading-spinner { width:24px; height:24px; border:2px solid var(--border); border-top-color:var(--gold); border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto 12px; }
+        .status-panel-body { flex:1; overflow-y:auto; padding:24px; }
+
+        /* Faculty Modal */
+        .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:300; padding:20px; }
+        .overlay.open { display:flex; }
+        .modal-box { background:var(--white); border:1px solid var(--border); width:100%; max-width:420px; box-shadow:0 24px 64px rgba(0,0,0,0.18); }
+        .modal-header { padding:18px 22px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+        .modal-title { font-family:'Playfair Display',serif; font-size:17px; font-weight:700; }
+        .modal-body { padding:22px; }
+        .modal-question { font-size:14px; font-weight:500; color:var(--ink); margin-bottom:18px; line-height:1.5; }
+        .choice-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px; }
+        .choice-card { border:2px solid var(--border); padding:18px 14px; text-align:center; cursor:pointer; transition:border-color 0.2s,background 0.2s,transform 0.15s; user-select:none; }
+        .choice-card:hover { border-color:var(--gold); background:rgba(201,168,76,0.04); transform:translateY(-2px); }
+        .choice-card.selected { border-color:var(--gold); background:rgba(201,168,76,0.08); }
+        .choice-icon { font-size:26px; margin-bottom:7px; }
+        .choice-label { font-size:13px; font-weight:600; }
+        .choice-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+        .num-picker { display:none; flex-direction:column; gap:10px; margin-bottom:18px; }
+        .num-picker.show { display:flex; }
+        .num-picker label { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
+        .num-stepper { display:flex; align-items:center; border:1.5px solid var(--border); background:var(--cream); width:fit-content; }
+        .stepper-btn { width:38px; height:38px; background:none; border:none; font-size:18px; cursor:pointer; color:var(--ink); transition:background 0.15s; display:flex; align-items:center; justify-content:center; }
+        .stepper-btn:hover { background:rgba(201,168,76,0.1); }
+        .stepper-btn:disabled { opacity:0.3; cursor:not-allowed; }
+        .stepper-val { min-width:48px; text-align:center; font-family:'Playfair Display',serif; font-size:20px; font-weight:900; border-left:1.5px solid var(--border); border-right:1.5px solid var(--border); padding:4px 0; }
+        .modal-actions { display:flex; justify-content:flex-end; gap:10px; }
+        .btn-modal-cancel { padding:9px 16px; background:transparent; border:1.5px solid var(--border); font-family:inherit; font-size:11px; font-weight:500; letter-spacing:1px; text-transform:uppercase; cursor:pointer; transition:border-color 0.2s; }
+        .btn-modal-cancel:hover { border-color:var(--gold); }
+        .btn-modal-confirm { padding:9px 18px; background:var(--gold); color:var(--ink); border:none; font-family:inherit; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; cursor:pointer; transition:background 0.2s,transform 0.15s; }
+        .btn-modal-confirm:hover { background:var(--gold-lt); transform:translateY(-1px); }
+
+        /* Toast */
+        .toast { position:fixed; bottom:28px; right:28px; background:var(--ink); color:var(--white); padding:12px 18px; font-size:13px; font-weight:500; border-left:4px solid var(--gold); box-shadow:0 8px 32px rgba(0,0,0,0.2); z-index:999; transform:translateY(80px); opacity:0; transition:transform 0.3s,opacity 0.3s; max-width:320px; }
+        .toast.show { transform:translateY(0); opacity:1; }
+        .toast.error { border-left-color:var(--red); }
+        .page-body::-webkit-scrollbar { width:4px; }
+        .page-body::-webkit-scrollbar-thumb { background:rgba(13,13,13,0.15); }
+        @media (max-width:900px) { .content-grid { grid-template-columns:1fr; } .sidebar { display:none; } .form-row { grid-template-columns:1fr; } }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-text">A<span>poorv</span></div>
+        <div class="logo-sub">MIT-ADT University</div>
+    </div>
+    <nav class="sidebar-nav">
+        <a class="nav-item" href="#" onclick="openProfile(); return false;">
+            <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-5 6-5s6 1.7 6 5"/>
+            </svg>Profile
+        </a>
+        <a class="nav-item active" href="#" onclick="openStatusPanel(); return false;">
+            <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/>
+            </svg>Status
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="sidebar-user">
+            <div class="user-avatar" id="sidebarAvatar">—</div>
+            <div class="user-info">
+                <div class="user-name" id="sidebarName">Loading…</div>
+                <div class="user-role" id="sidebarRole">MIT-ADT University</div>
+            </div>
+        </div>
+        <a class="logout-link" onclick="logout()">Sign Out</a>
+    </div>
+</aside>
+
+<div class="main">
+    <div class="topbar">
+        <div class="topbar-title">
+            <span class="topbar-eyebrow">Apoorv</span>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-page">Submit Document</span>
+        </div>
+        <span class="topbar-date" id="topbarDate"></span>
+    </div>
+
+    <div class="page-body">
+        <div class="page-header">
+            <h1 class="page-h1">Submit <span>Document</span></h1>
+            <p class="page-desc">Upload your file, assign faculty reviewers, and track approval status.</p>
+        </div>
+
+        <div class="content-grid">
+            <!-- LEFT: Upload form -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-header-icon">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#c9a84c" stroke-width="1.5">
+                            <path d="M3 2h7l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z"/>
+                            <path d="M10 2v3h3"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="card-title">Upload File</div>
+                        <div class="card-subtitle">PDF, DOCX, JPG — max 10 MB</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="dropzone" id="dropzone">
+                        <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                        <svg class="drop-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M24 32V16M16 24l8-8 8 8"/>
+                            <path d="M8 36c0 2.2 1.8 4 4 4h24c2.2 0 4-1.8 4-4"/>
+                        </svg>
+                        <p class="drop-title" id="drop-label">Drag &amp; drop your file here</p>
+                        <p class="drop-sub">or <em>click to browse</em> from your computer</p>
+                    </div>
+                    <div class="upload-progress" id="uploadProgress">
+                        <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill"></div></div>
+                        <div class="progress-label"><span id="progressText">Uploading...</span><span id="progressPct">0%</span></div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="doc-title">Document title</label>
+                            <input type="text" id="doc-title" placeholder="e.g. Project Report">
+                        </div>
+                        <div class="form-field">
+                            <label for="doc-type">Document type</label>
+                            <div class="select-wrap">
+                                <select id="doc-type">
+                                    <option value="" disabled selected>Select type</option>
+                                    <option>Project Report</option>
+                                    <option>Assignment</option>
+                                    <option>Research Paper</option>
+                                    <option>Certificate</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-field">
+                            <label for="doc-dept">Department</label>
+                            <div class="select-wrap">
+                                <select id="doc-dept">
+                                    <option value="" disabled selected>Select department</option>
+                                    <option>Computer Engineering</option>
+                                    <option>Mechanical Engineering</option>
+                                    <option>Civil Engineering</option>
+                                    <option>Electronics</option>
+                                    <option>MBA</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-field">
+                            <label for="doc-sem">Semester</label>
+                            <div class="select-wrap">
+                                <select id="doc-sem">
+                                    <option value="" disabled selected>Select semester</option>
+                                    <option>Semester I</option><option>Semester II</option>
+                                    <option>Semester III</option><option>Semester IV</option>
+                                    <option>Semester V</option><option>Semester VI</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-field full">
+                            <label for="doc-notes">Notes (optional)</label>
+                            <textarea id="doc-notes" placeholder="Any additional context for the reviewer..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="faculty-section">
+                        <div class="faculty-section-title">
+                            <span>Faculty Reviewer Chain</span>
+                            <button type="button" class="btn-outline" onclick="openFacultyModal()">Change</button>
+                        </div>
+                        <div class="faculty-chain" id="facultyChain">
+                            <div style="font-size:13px;color:var(--muted);text-align:center;padding:10px 0;">
+                                Click <strong>Change</strong> to assign faculty reviewer(s).
+                            </div>
+                        </div>
+                        <div class="faculty-hint" id="facultyHint" style="display:none;">
+                            📋 Document flows <strong>top → bottom</strong>. Each faculty signs before the next receives it.
+                        </div>
+                    </div>
+
+                    <div class="urgent-row" onclick="toggleUrgent(event)">
+                        <input type="checkbox" id="urgentCheck" onclick="event.stopPropagation()">
+                        <label for="urgentCheck" onclick="event.stopPropagation()">Mark as <strong>Urgent</strong></label>
+                        <span>Faculty notified immediately</span>
+                    </div>
+
+                    <button type="button" class="btn-submit" id="submitBtn" onclick="submitDocument()">
+                        <div class="spinner"></div>
+                        <span class="btn-text">Submit Document →</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- RIGHT: Stats + submissions -->
+            <div class="right-panel">
+                <div class="status-bar">
+                    <div class="stat-cell"><div class="stat-num total" id="statTotal">0</div><div class="stat-label">Total</div></div>
+                    <div class="stat-cell"><div class="stat-num approved" id="statApproved">0</div><div class="stat-label">Approved</div></div>
+                    <div class="stat-cell"><div class="stat-num pending" id="statPending">0</div><div class="stat-label">Pending</div></div>
+                </div>
+
+                <div class="submissions-card">
+                    <div class="card-header">
+                        <div class="card-header-icon">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#c9a84c" stroke-width="1.5">
+                                <path d="M2 4h12M2 8h8M2 12h5"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="card-title">My Submissions</div>
+                            <div class="card-subtitle">Click any item to view details</div>
+                        </div>
+                    </div>
+                    <div class="submissions-list" id="submissionsList">
+                        <div class="empty-state">
+                            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.2">
+                                <path d="M9 4h12l8 8v20a2 2 0 01-2 2H9a2 2 0 01-2-2V6a2 2 0 012-2z"/>
+                                <path d="M21 4v8h8"/>
+                            </svg>
+                            No submissions yet.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submission Detail Modal -->
+<div class="detail-overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
+    <div class="detail-box">
+        <div class="detail-header">
+            <div class="detail-title" id="detailTitle">Submission Details</div>
+            <button class="modal-close" onclick="closeDetail()">×</button>
+        </div>
+        <div class="detail-body" id="detailBody"></div>
+    </div>
+</div>
+
+<!-- Profile Panel -->
+<div class="profile-overlay" id="profileOverlay" onclick="closeProfile()"></div>
+<div class="profile-panel" id="profilePanel">
+    <div class="profile-panel-header">
+        <div class="profile-panel-title">My Profile</div>
+        <button class="panel-close" onclick="closeProfile()">×</button>
+    </div>
+    <div class="profile-panel-body" id="profilePanelBody">
+        <div class="profile-loading"><div class="profile-loading-spinner"></div>Loading profile…</div>
+    </div>
+</div>
+
+<!-- Status Panel -->
+<div class="profile-overlay" id="statusOverlay" onclick="closeStatusPanel()"></div>
+<div class="profile-panel" id="statusPanel">
+    <div class="profile-panel-header">
+        <div class="profile-panel-title">Approval Status</div>
+        <button class="panel-close" onclick="closeStatusPanel()">×</button>
+    </div>
+    <div class="status-panel-body" id="statusPanelBody">
+        <div class="empty-state" style="padding:40px 0;">No submissions to track yet.</div>
+    </div>
+</div>
+
+<!-- Faculty Modal -->
+<div class="overlay" id="facultyOverlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div class="modal-title">Assign Faculty</div>
+            <button class="modal-close" onclick="closeFacultyModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div id="stepChoice">
+                <div class="modal-question">How many faculty members should review this document?</div>
+                <div class="choice-row">
+                    <div class="choice-card" id="choiceSingle" onclick="selectFacultyType('single')">
+                        <div class="choice-icon">👤</div>
+                        <div class="choice-label">Single Faculty</div>
+                        <div class="choice-sub">One reviewer only</div>
+                    </div>
+                    <div class="choice-card" id="choiceMultiple" onclick="selectFacultyType('multiple')">
+                        <div class="choice-icon">👥</div>
+                        <div class="choice-label">Multiple Faculty</div>
+                        <div class="choice-sub">2 to 5 reviewers</div>
+                    </div>
+                </div>
+                <div class="num-picker" id="numPicker">
+                    <label>Number of Faculty (2 – 5)</label>
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div class="num-stepper">
+                            <button class="stepper-btn" id="stepDown" onclick="changeCount(-1)" disabled>−</button>
+                            <div class="stepper-val" id="stepVal">2</div>
+                            <button class="stepper-btn" id="stepUp" onclick="changeCount(1)">+</button>
+                        </div>
+                        <div style="font-size:11px;color:var(--muted);">Each faculty signs before the next one sees it.</div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-modal-cancel" onclick="closeFacultyModal()">Cancel</button>
+                    <button class="btn-modal-confirm" id="btnNextStep" onclick="goToIdEntry()" disabled>Next →</button>
+                </div>
+            </div>
+            <div id="stepIds" style="display:none;">
+                <div class="modal-question" id="idStepTitle">Enter Faculty IDs in hierarchy order:</div>
+                <div id="idFields" style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;"></div>
+                <div class="modal-actions">
+                    <button class="btn-modal-cancel" onclick="backToChoice()">← Back</button>
+                    <button class="btn-modal-confirm" onclick="confirmFaculty()">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let mySubmissions = [];
+let confirmedFacultyIds = [];
+let facultyType = null, facultyCount = 2;
+let currentUser = null;
+
+// ── Helpers ──────────────────────────────────────────────────────────────
+function esc(s='') { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function showToast(msg, isError=false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.toggle('error', isError);
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function toggleUrgent(e) {
+    const cb = document.getElementById('urgentCheck');
+    cb.checked = !cb.checked;
+}
+
+async function logout() {
+    try { await fetch('/api/auth/logout', { method:'POST', credentials:'include' }); } catch {}
+    window.location.href = '/login.html';
+}
+
+function getInitials(username) {
+    if (!username) return '—';
+    return username.slice(0,2).toUpperCase();
+}
+
+// ── Populate sidebar ─────────────────────────────────────────────────────
+function populateSidebar(u) {
+    const username = u.username || '—';
+    const name = (u.firstName && u.lastName) ? `${u.firstName} ${u.lastName}` : username;
+    document.getElementById('sidebarAvatar').textContent = getInitials(username);
+    document.getElementById('sidebarName').textContent   = name;
+    document.getElementById('sidebarRole').textContent   = u.role || 'Student';
+}
+
+// ── Auth check ───────────────────────────────────────────────────────────
+async function initUser() {
+    try {
+        const res = await fetch('/api/auth/me', { credentials:'include' });
+        if (res.status === 401 || res.status === 403) {
+            window.location.replace('/login.html');
+            return;
+        }
+        if (!res.ok) {
+            showToast(`Session error (${res.status}). Try refreshing.`, true);
+            return;
+        }
+        const u = await res.json();
+        currentUser = u;
+        // If faculty lands here by mistake, redirect
+        if (u.role === 'faculty') {
+            window.location.replace('/public/teacher.html');
+            return;
+        }
+        populateSidebar(u);
+    } catch {
+        showToast('Network error. Could not verify session.', true);
+    }
+}
+
+// ── Load submissions ─────────────────────────────────────────────────────
+async function loadSubmissions() {
+    try {
+        const res = await fetch('/api/submissions/student/my', { credentials:'include' });
+        if (!res.ok) return;
+        const data = await res.json();
+        mySubmissions = Array.isArray(data) ? data : [];
+        renderSubmissions();
+    } catch {}
+}
+
+// ── Render submissions list ──────────────────────────────────────────────
+function renderSubmissions() {
+    const list = document.getElementById('submissionsList');
+    if (!mySubmissions.length) {
+        list.innerHTML = `<div class="empty-state">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.2">
+                <path d="M9 4h12l8 8v20a2 2 0 01-2 2H9a2 2 0 01-2-2V6a2 2 0 012-2z"/>
+                <path d="M21 4v8h8"/>
+            </svg>No submissions yet.</div>`;
+    } else {
+        list.innerHTML = mySubmissions.slice(0,10).map(s => {
+            let cls = 'status-pending', txt = 'Pending';
+            if (s.status === 'approved') { cls = 'status-approved'; txt = 'Approved'; }
+            if (s.status === 'rejected') { cls = 'status-rejected'; txt = 'Rejected'; }
+            const dateStr = s.submittedAt
+                ? new Date(s.submittedAt).toLocaleDateString('en-IN',{day:'numeric',month:'short'})
+                : '—';
+            return `<div class="submission-item" onclick="openDetail('${s._id}')">
+                <div class="sub-file-icon">
+                    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#c9a84c" stroke-width="1.5">
+                        <path d="M3 2h7l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M10 2v3h3"/>
+                    </svg>
+                </div>
+                <div class="sub-info">
+                    <div class="sub-name">${esc(s.title)}</div>
+                    <div class="sub-file-name">📎 ${esc(s.fileName || '—')}</div>
+                    <div class="sub-meta">${dateStr} · ${esc(s.type||'')} ${s.urgent?'· 🔴 Urgent':''}</div>
+                </div>
+                <div class="sub-status ${cls}">${txt}</div>
+            </div>`;
+        }).join('');
+    }
+    const total    = mySubmissions.length;
+    const approved = mySubmissions.filter(s=>s.status==='approved').length;
+    const pending  = mySubmissions.filter(s=>s.status==='pending').length;
+    document.getElementById('statTotal').textContent    = total;
+    document.getElementById('statApproved').textContent = approved;
+    document.getElementById('statPending').textContent  = pending;
+}
+
+// ── Submission Detail Modal ──────────────────────────────────────────────
+function openDetail(id) {
+    const s = mySubmissions.find(x => x._id === id);
+    if (!s) return;
+
+    document.getElementById('detailTitle').textContent = s.title || 'Submission Details';
+    const body = document.getElementById('detailBody');
+
+    const chain = s.facultyChain || [];
+    const chainHtml = chain.length ? chain.map((step, i) => {
+        let dotCls = 'dot-waiting', statusTxt = 'Waiting';
+        if (step.status === 'approved') { dotCls = 'dot-approved'; statusTxt = 'Signed & Approved'; }
+        if (step.status === 'rejected') { dotCls = 'dot-rejected'; statusTxt = 'Rejected'; }
+        if (step.status === 'pending'  && i === s.currentStep) { dotCls = 'dot-pending'; statusTxt = 'Awaiting Signature'; }
+        const rejNote = step.status === 'rejected' && step.rejectionReason
+            ? `<div class="rejection-note">Reason: ${esc(step.rejectionReason)}</div>` : '';
+        const signedOn = step.signedAt
+            ? `<br><small>Signed: ${new Date(step.signedAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</small>` : '';
+        const arrow = i < chain.length-1 ? `<div class="chain-arrow">↓</div>` : '';
+        return `<div class="chain-step-row">
+            <div class="chain-step-dot ${dotCls}">${step.status==='approved'?'✓':i+1}</div>
+            <div class="chain-step-info">
+                <div class="chain-step-id">${esc(step.facultyId)}</div>
+                <div class="chain-step-status">${statusTxt}${signedOn}</div>
+                ${rejNote}
+            </div>
+        </div>${arrow}`;
+    }).join('') : '<div style="font-size:13px;color:var(--muted);">No reviewer chain found.</div>';
+
+    const dateStr = s.submittedAt
+        ? new Date(s.submittedAt).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})
+        : '—';
+
+    let overallCls = 'status-pending', overallTxt = 'Pending';
+    if (s.status === 'approved') { overallCls = 'status-approved'; overallTxt = 'Fully Approved'; }
+    if (s.status === 'rejected') { overallCls = 'status-rejected'; overallTxt = 'Rejected'; }
+
+    body.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+            <div style="font-size:12px;color:var(--muted);">${dateStr}</div>
+            <div class="sub-status ${overallCls}" style="align-self:auto;">${overallTxt}</div>
+        </div>
+        <div class="detail-grid">
+            <div class="detail-field"><div class="detail-label">Type</div><div class="detail-value">${esc(s.type||'—')}</div></div>
+            <div class="detail-field"><div class="detail-label">Department</div><div class="detail-value">${esc(s.department||'—')}</div></div>
+            <div class="detail-field"><div class="detail-label">Semester</div><div class="detail-value">${esc(s.semester||'—')}</div></div>
+            <div class="detail-field"><div class="detail-label">Urgent</div><div class="detail-value">${s.urgent?'🔴 Yes':'No'}</div></div>
+        </div>
+        ${s.fileName ? `<div class="detail-section">
+            <div class="detail-label">Attached File</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--cream);border:1px solid var(--border);">
+                <span>📎</span>
+                <span style="font-size:13px;font-weight:500;flex:1;">${esc(s.fileName)}</span>
+                ${s.filePath ? `<a href="${s.filePath}" target="_blank" style="font-size:11px;color:var(--gold);font-weight:600;text-decoration:none;">Open ↗</a>` : ''}
+            </div>
+        </div>` : ''}
+        ${s.notes ? `<div class="detail-section">
+            <div class="detail-label">Notes</div>
+            <div style="padding:10px 12px;background:rgba(201,168,76,0.06);border-left:3px solid var(--gold);font-size:13px;line-height:1.6;">${esc(s.notes)}</div>
+        </div>` : ''}
+        <div class="detail-section">
+            <div class="detail-label">Approval Chain</div>
+            <div class="chain-timeline">${chainHtml}</div>
+        </div>`;
+
+    document.getElementById('detailOverlay').classList.add('open');
+}
+
+function closeDetail() { document.getElementById('detailOverlay').classList.remove('open'); }
+
+// ── Dropzone ─────────────────────────────────────────────────────────────
+const dz  = document.getElementById('dropzone');
+const fi  = document.getElementById('fileInput');
+const lbl = document.getElementById('drop-label');
+fi.addEventListener('change', () => { if (fi.files.length) updateDropzoneLabel(fi.files[0]); });
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) { fi.files = e.dataTransfer.files; updateDropzoneLabel(e.dataTransfer.files[0]); }
+});
+function updateDropzoneLabel(file) {
+    const mb = (file.size/1024/1024).toFixed(1);
+    lbl.textContent = `${file.name} (${mb} MB)`;
+    dz.style.borderColor = '#c9a84c';
+    dz.style.background  = 'rgba(201,168,76,0.06)';
+}
+
+// ── Faculty Modal ─────────────────────────────────────────────────────────
+function openFacultyModal() {
+    facultyType = null; facultyCount = 2;
+    document.getElementById('stepVal').textContent = '2';
+    document.getElementById('stepDown').disabled = true;
+    document.getElementById('stepUp').disabled = false;
+    document.getElementById('btnNextStep').disabled = true;
+    document.getElementById('choiceSingle').classList.remove('selected');
+    document.getElementById('choiceMultiple').classList.remove('selected');
+    document.getElementById('numPicker').classList.remove('show');
+    document.getElementById('stepChoice').style.display = '';
+    document.getElementById('stepIds').style.display = 'none';
+    document.getElementById('facultyOverlay').classList.add('open');
+}
+function closeFacultyModal() { document.getElementById('facultyOverlay').classList.remove('open'); }
+function selectFacultyType(type) {
+    facultyType = type;
+    document.getElementById('choiceSingle').classList.toggle('selected', type==='single');
+    document.getElementById('choiceMultiple').classList.toggle('selected', type==='multiple');
+    document.getElementById('numPicker').classList.toggle('show', type==='multiple');
+    document.getElementById('btnNextStep').disabled = false;
+    if (type==='single') facultyCount = 1;
+    else facultyCount = parseInt(document.getElementById('stepVal').textContent);
+}
+function changeCount(delta) {
+    const next = facultyCount + delta;
+    if (next < 2 || next > 5) return;
+    facultyCount = next;
+    document.getElementById('stepVal').textContent = next;
+    document.getElementById('stepDown').disabled = (next<=2);
+    document.getElementById('stepUp').disabled   = (next>=5);
+}
+function goToIdEntry() {
+    if (!facultyType) return;
+    if (facultyType==='multiple') facultyCount = parseInt(document.getElementById('stepVal').textContent);
+    const container = document.getElementById('idFields');
+    container.innerHTML = '';
+    const ranks = ['1st','2nd','3rd','4th','5th'];
+    for (let i=0; i<facultyCount; i++) {
+        const row = document.createElement('div'); row.className = 'faculty-row';
+        const badge = document.createElement('div');
+        badge.className = `faculty-rank${i>0?' rank-'+(i+1):''}`;
+        badge.textContent = i+1;
+        const input = document.createElement('input');
+        input.type = 'text'; input.placeholder = `Faculty ${ranks[i]} ID (e.g. FAC0002)`;
+        input.id = `fid_${i}`; input.style.textTransform = 'uppercase';
+        if (confirmedFacultyIds[i]) input.value = confirmedFacultyIds[i];
+        row.appendChild(badge); row.appendChild(input);
+        container.appendChild(row);
+        if (i < facultyCount-1) {
+            const arrow = document.createElement('div');
+            arrow.style.cssText = 'color:var(--muted);font-size:13px;opacity:0.5;padding-left:36px;';
+            arrow.textContent = '↓';
+            container.appendChild(arrow);
+        }
+    }
+    document.getElementById('idStepTitle').textContent = facultyCount===1 ? 'Enter the Faculty ID:' : `Enter ${facultyCount} Faculty IDs in hierarchy order:`;
+    document.getElementById('stepChoice').style.display = 'none';
+    document.getElementById('stepIds').style.display = '';
+}
+function backToChoice() {
+    document.getElementById('stepChoice').style.display = '';
+    document.getElementById('stepIds').style.display = 'none';
+}
+function confirmFaculty() {
+    const ids = [];
+    for (let i=0; i<facultyCount; i++) {
+        const val = (document.getElementById(`fid_${i}`)?.value||'').trim().toUpperCase();
+        if (!val) { showToast(`Please enter Faculty ${i+1} ID.`, true); return; }
+        ids.push(val);
+    }
+    confirmedFacultyIds = ids;
+    closeFacultyModal();
+    renderFacultyChain();
+    showToast(`✓ ${ids.length} faculty reviewer${ids.length>1?'s':''} assigned.`);
+}
+function renderFacultyChain() {
+    const chain = document.getElementById('facultyChain');
+    const hint  = document.getElementById('facultyHint');
+    if (!confirmedFacultyIds.length) {
+        chain.innerHTML = `<div style="font-size:13px;color:var(--muted);text-align:center;padding:10px 0;">Click <strong>Change</strong> to assign faculty reviewer(s).</div>`;
+        hint.style.display = 'none'; return;
+    }
+    const rankNames = ['1st – Primary','2nd','3rd','4th','5th'];
+    chain.innerHTML = confirmedFacultyIds.map((id,i) => `
+        <div class="faculty-row">
+            <div class="faculty-rank${i>0?' rank-'+(i+1):''}">${i+1}</div>
+            <input value="${esc(id)}" placeholder="Faculty ID" style="text-transform:uppercase"
+                oninput="confirmedFacultyIds[${i}]=this.value.trim().toUpperCase()">
+            <span style="font-size:11px;color:var(--muted);white-space:nowrap;margin-left:6px;">${rankNames[i]}</span>
+        </div>
+        ${i<confirmedFacultyIds.length-1?'<div style="color:var(--muted);font-size:13px;opacity:0.5;padding-left:36px;">↓</div>':''}
+    `).join('');
+    hint.style.display = confirmedFacultyIds.length>1 ? '' : 'none';
+}
+
+// ── Submit ────────────────────────────────────────────────────────────────
+async function submitDocument() {
+    const title  = document.getElementById('doc-title').value.trim();
+    const type   = document.getElementById('doc-type').value;
+    const dept   = document.getElementById('doc-dept').value;
+    const sem    = document.getElementById('doc-sem').value;
+    const notes  = document.getElementById('doc-notes').value.trim();
+    const urgent = document.getElementById('urgentCheck').checked;
+
+    if (!title)                      { showToast('Please enter a document title.', true); return; }
+    if (!type  || type==='')         { showToast('Please select document type.', true); return; }
+    if (!dept  || dept==='')         { showToast('Please select department.', true); return; }
+    if (!sem   || sem==='')          { showToast('Please select semester.', true); return; }
+    if (!confirmedFacultyIds.length) { showToast('Please assign at least one faculty reviewer.', true); return; }
+    if (!fi.files.length)            { showToast('Please attach a file to upload.', true); return; }
+
+    const file = fi.files[0];
+    if (file.size > 10*1024*1024) { showToast('File too large. Max 10 MB.', true); return; }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('title', title);
+    formData.append('type', type);
+    formData.append('department', dept);
+    formData.append('semester', sem);
+    formData.append('notes', notes);
+    formData.append('urgent', urgent);
+    formData.append('facultyIds', confirmedFacultyIds.join(','));
+
+    const btn = document.getElementById('submitBtn');
+    btn.classList.add('loading'); btn.disabled = true;
+    const progressEl   = document.getElementById('uploadProgress');
+    const progressFill = document.getElementById('progressFill');
+    const progressPct  = document.getElementById('progressPct');
+    const progressText = document.getElementById('progressText');
+    progressEl.classList.add('show');
+    progressFill.style.width = '0%';
+    progressPct.textContent  = '0%';
+
+    try {
+        await uploadWithProgress(formData, progressFill, progressPct, progressText);
+        progressText.textContent = 'Upload complete!';
+        progressFill.style.width = '100%';
+        progressPct.textContent  = '100%';
+        showToast(`✓ Submitted! Awaiting review by ${confirmedFacultyIds[0]}.`);
+        resetForm();
+        await loadSubmissions();
+    } catch (err) {
+        if (err.message && err.message.includes('[401]')) {
+            showToast('Session expired. Redirecting to login…', true);
+            setTimeout(() => window.location.replace('/login.html'), 1500);
+        } else {
+            showToast(err.message || 'Submission failed. Please try again.', true);
+        }
+    } finally {
+        btn.classList.remove('loading'); btn.disabled = false;
+        setTimeout(() => progressEl.classList.remove('show'), 2500);
+    }
+}
+
+function uploadWithProgress(formData, fillEl, pctEl, textEl) {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.upload.addEventListener('progress', e => {
+            if (e.lengthComputable) {
+                const pct = Math.round((e.loaded/e.total)*100);
+                fillEl.style.width = pct+'%'; pctEl.textContent = pct+'%';
+                textEl.textContent = pct<100 ? 'Uploading…' : 'Processing…';
+            }
+        });
+        xhr.addEventListener('load', () => {
+            if (xhr.status>=200 && xhr.status<300) {
+                try { resolve(JSON.parse(xhr.responseText)); } catch { resolve({}); }
+            } else {
+                let msg = `Server error (${xhr.status})`;
+                try { msg = JSON.parse(xhr.responseText).message || msg; } catch {}
+                reject(new Error(`${msg} [${xhr.status}]`));
+            }
+        });
+        xhr.addEventListener('error', () => reject(new Error('Network error. Is the server running?')));
+        xhr.addEventListener('timeout', () => reject(new Error('Upload timed out.')));
+        xhr.timeout = 60000;
+        xhr.open('POST', '/api/submissions/student/submit');
+        xhr.withCredentials = true;
+        xhr.send(formData);
+    });
+}
+
+function resetForm() {
+    document.getElementById('doc-title').value = '';
+    document.getElementById('doc-type').selectedIndex = 0;
+    document.getElementById('doc-dept').selectedIndex = 0;
+    document.getElementById('doc-sem').selectedIndex  = 0;
+    document.getElementById('doc-notes').value = '';
+    document.getElementById('urgentCheck').checked = false;
+    lbl.textContent = 'Drag & drop your file here';
+    dz.style.borderColor = '';
+    dz.style.background  = '';
+    confirmedFacultyIds  = [];
+    renderFacultyChain();
+    fi.value = '';
+}
+
+// ── Profile Panel ─────────────────────────────────────────────────────────
+async function openProfile() {
+    document.getElementById('profileOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('profilePanel').classList.add('open'), 10);
+    document.getElementById('profilePanelBody').innerHTML = `<div class="profile-loading"><div class="profile-loading-spinner"></div>Loading profile…</div>`;
+    try {
+        const res = await fetch('/api/auth/me', { credentials:'include' });
+        if (!res.ok) {
+            document.getElementById('profilePanelBody').innerHTML =
+                `<div class="profile-loading" style="color:var(--red);">Failed to load profile (${res.status}).<br><small style="font-size:11px;color:var(--muted);">Try refreshing the page.</small></div>`;
+            return;
+        }
+        const u = await res.json();
+        currentUser = u;
+        populateSidebar(u);
+
+        const total    = mySubmissions.length;
+        const approved = mySubmissions.filter(s=>s.status==='approved').length;
+        const pending  = mySubmissions.filter(s=>s.status==='pending').length;
+        const initials = getInitials(u.username);
+        const fullName = (u.firstName && u.lastName) ? `${u.firstName} ${u.lastName}` : u.username;
+
+        document.getElementById('profilePanelBody').innerHTML = `
+            <div class="profile-avatar-large">${esc(initials)}</div>
+            <div class="profile-name">${esc(fullName)}</div>
+            <div class="profile-uni">MIT-ADT University</div>
+            <div class="profile-divider"></div>
+            <div class="profile-field"><div class="profile-field-label">Login ID</div><div class="profile-field-value">${esc(u.username)}</div></div>
+            <div class="profile-field"><div class="profile-field-label">Email</div><div class="profile-field-value">${esc(u.email||'—')}</div></div>
+            <div class="profile-field"><div class="profile-field-label">Role</div><div class="profile-field-value">${esc(u.role||'Student')}</div></div>
+            ${u.department ? `<div class="profile-field"><div class="profile-field-label">Department</div><div class="profile-field-value">${esc(u.department)}</div></div>` : ''}
+            <div class="profile-divider"></div>
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                <div style="text-align:center;"><div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--ink);">${total}</div><div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:2px;">Submitted</div></div>
+                <div style="width:1px;background:var(--border);"></div>
+                <div style="text-align:center;"><div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:#3B6D11;">${approved}</div><div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:2px;">Approved</div></div>
+                <div style="width:1px;background:var(--border);"></div>
+                <div style="text-align:center;"><div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:#854F0B;">${pending}</div><div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:2px;">Pending</div></div>
+            </div>`;
+    } catch {
+        document.getElementById('profilePanelBody').innerHTML =
+            `<div class="profile-loading" style="color:var(--red);">Network error. Could not load profile.</div>`;
+    }
+}
+function closeProfile() {
+    document.getElementById('profilePanel').classList.remove('open');
+    document.getElementById('profileOverlay').classList.remove('open');
+}
+
+// ── Status Panel ──────────────────────────────────────────────────────────
+function openStatusPanel() {
+    document.getElementById('statusOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('statusPanel').classList.add('open'), 10);
+    renderStatusPanel();
+}
+function closeStatusPanel() {
+    document.getElementById('statusPanel').classList.remove('open');
+    document.getElementById('statusOverlay').classList.remove('open');
+}
+function renderStatusPanel() {
+    const body = document.getElementById('statusPanelBody');
+    if (!mySubmissions.length) {
+        body.innerHTML = `<div class="empty-state" style="padding:40px 0;">No submissions to track yet.</div>`;
+        return;
+    }
+    body.innerHTML = mySubmissions.map(s => {
+        const chain = s.facultyChain || [];
+        const dateStr = s.submittedAt
+            ? new Date(s.submittedAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})
+            : '—';
+        let cls = 'status-pending', txt = 'Pending';
+        if (s.status === 'approved') { cls = 'status-approved'; txt = 'Approved'; }
+        if (s.status === 'rejected') { cls = 'status-rejected'; txt = 'Rejected'; }
+        const chainHtml = chain.length ? `<div style="display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap;">
+            ${chain.map((step,i) => {
+                let bg = 'rgba(13,13,13,0.12)', color = 'var(--muted)';
+                if (step.status==='approved') { bg='#3B6D11'; color='#fff'; }
+                if (step.status==='rejected') { bg='#A12B2B'; color='#fff'; }
+                if (step.status==='pending'&&i===s.currentStep) { bg='var(--gold)'; color='var(--ink)'; }
+                return `<span style="width:22px;height:22px;border-radius:50%;background:${bg};color:${color};font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">${step.status==='approved'?'✓':i+1}</span>${i<chain.length-1?'<span style="font-size:10px;color:var(--muted);">→</span>':''}`;
+            }).join('')}
+        </div>` : '';
+        return `<div style="padding:14px 0;border-bottom:1px solid var(--border);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                <div style="font-size:13px;font-weight:500;color:var(--ink);">${esc(s.title)}</div>
+                <div class="sub-status ${cls}">${txt}</div>
+            </div>
+            <div style="font-size:11px;color:var(--gold);font-weight:500;margin-bottom:2px;">📎 ${esc(s.fileName||'—')}</div>
+            <div style="font-size:11px;color:var(--muted);">${dateStr} · ${esc(s.type||'')}</div>
+            ${chainHtml}
+        </div>`;
+    }).join('');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+document.getElementById('topbarDate').textContent =
+    new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+
+initUser();
+renderFacultyChain();
+loadSubmissions();
+setInterval(loadSubmissions, 30000);
+</script>
+</body>
+</html>

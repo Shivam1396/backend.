@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apoorv — Faculty Review Panel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #0d0d0d;
+      --cream: #f5f0e8;
+      --gold: #c9a84c;
+      --gold-lt: #e8d5a3;
+      --white: #ffffff;
+      --muted: #6b6560;
+      --border: rgba(13,13,13,0.10);
+      --sidebar-w: 200px;
+      --green: #3B6D11;
+      --orange: #854F0B;
+      --red: #A12B2B;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w); flex-shrink: 0;
+      background: var(--ink); color: var(--white);
+      display: flex; flex-direction: column;
+      position: relative; overflow: hidden; height: 100vh;
+    }
+    .sidebar::after {
+      content: ''; position: absolute;
+      top: 0; right: 0; bottom: 0; width: 1px;
+      background: linear-gradient(180deg, transparent, var(--gold), transparent);
+      opacity: 0.4;
+    }
+    .sidebar-logo { padding: 28px 24px 24px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .logo-text { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 900; color: var(--white); letter-spacing: -1px; line-height: 1; }
+    .logo-text span { color: var(--gold); }
+    .logo-sub { font-size: 9px; color: rgba(255,255,255,0.3); letter-spacing: 2px; text-transform: uppercase; margin-top: 5px; }
+    .sidebar-nav { flex: 1; padding: 24px 0; overflow-y: auto; }
+    .nav-label { font-size: 9px; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.25); padding: 0 24px; margin-bottom: 6px; margin-top: 18px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 11px;
+      padding: 11px 24px; font-size: 13px;
+      color: rgba(255,255,255,0.45); text-decoration: none;
+      position: relative; transition: color 0.2s, background 0.2s;
+      cursor: pointer; border: none; background: transparent;
+      width: 100%; font-family: 'DM Sans', sans-serif;
+    }
+    .nav-item:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.04); }
+    .nav-item.active { color: var(--white); background: rgba(201,168,76,0.12); }
+    .nav-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--gold); }
+    .nav-icon { width: 15px; height: 15px; opacity: 0.7; flex-shrink: 0; }
+    .nav-item.active .nav-icon { opacity: 1; }
+    .nav-badge { margin-left: auto; background: var(--gold); color: var(--ink); font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 20px; min-width: 20px; text-align: center; }
+    .sidebar-footer { padding: 18px 24px; border-top: 1px solid rgba(255,255,255,0.07); }
+    .sidebar-user { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; }
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(201,168,76,0.2); border: 1.5px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--gold); flex-shrink: 0; }
+    .user-name { font-size: 12px; font-weight: 500; color: var(--white); line-height: 1.3; }
+    .user-role { font-size: 10px; color: rgba(255,255,255,0.35); }
+    .logout-btn { width: 100%; padding: 8px 0; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.38); font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase; cursor: pointer; transition: border-color 0.2s, color 0.2s; }
+    .logout-btn:hover { border-color: rgba(161,43,43,0.6); color: #e08080; }
+
+    /* ── Main ── */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+    .topbar { height: 60px; background: var(--cream); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; flex-shrink: 0; }
+    .topbar-left { display: flex; align-items: center; gap: 10px; }
+    .topbar-eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: var(--muted); }
+    .topbar-sep { color: rgba(13,13,13,0.2); }
+    .topbar-page { font-size: 13px; font-weight: 500; color: var(--ink); }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .refresh-btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px; background: transparent; border: 1.5px solid var(--border); font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 500; letter-spacing: 1.8px; text-transform: uppercase; color: var(--muted); cursor: pointer; transition: border-color 0.2s, color 0.2s; }
+    .refresh-btn:hover { border-color: var(--gold); color: var(--ink); }
+    .refresh-btn.spin svg { animation: spin 0.6s linear; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .topbar-date { font-size: 12px; color: var(--muted); }
+
+    /* ── Page body ── */
+    .page-body { flex: 1; overflow-y: auto; padding: 28px 32px 60px; }
+    .page-h1 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; letter-spacing: -1px; line-height: 1.1; margin-bottom: 4px; }
+    .page-h1 span { color: var(--gold); font-style: italic; }
+    .page-desc { font-size: 13px; color: var(--muted); margin-bottom: 22px; font-weight: 300; }
+
+    /* ── Stats ── */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 22px; }
+    .stat-box { background: var(--white); border: 1px solid var(--border); padding: 18px 16px; transition: border-color 0.2s, transform 0.15s; }
+    .stat-box:hover { border-color: var(--gold); transform: translateY(-1px); }
+    .stat-num { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 900; letter-spacing: -1px; line-height: 1; }
+    .stat-label { margin-top: 5px; font-size: 9px; text-transform: uppercase; letter-spacing: 1.6px; color: var(--muted); font-weight: 600; }
+
+    /* ── Two-column grid (mirrors student.html) ── */
+    .content-grid { display: grid; grid-template-columns: 1fr 340px; gap: 22px; align-items: start; }
+
+    /* ── Cards ── */
+    .card { background: var(--white); border: 1px solid var(--border); }
+    .card-header { padding: 16px 20px 13px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .card-header-inner { display: flex; align-items: center; gap: 10px; }
+    .card-icon { width: 30px; height: 30px; background: rgba(201,168,76,0.10); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .card-title { font-size: 14px; font-weight: 600; }
+    .card-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .card-body { padding: 16px 20px 20px; }
+
+    /* ── Filter tabs ── */
+    .filter-row { display: flex; border: 1px solid var(--border); margin-bottom: 14px; overflow: hidden; }
+    .ftab { flex: 1; height: 32px; background: transparent; border: none; border-right: 1px solid var(--border); font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); cursor: pointer; transition: background 0.18s, color 0.18s; }
+    .ftab:last-child { border-right: none; }
+    .ftab:hover { background: rgba(201,168,76,0.06); color: var(--ink); }
+    .ftab.active { background: var(--gold); color: var(--ink); font-weight: 700; }
+
+    /* ── Submission cards ── */
+    .submissions-list { display: flex; flex-direction: column; gap: 12px; }
+    .sub-card { border: 1px solid var(--border); background: var(--white); padding: 16px; transition: border-color 0.2s, box-shadow 0.2s; animation: fadeUp 0.28s ease both; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    .sub-card:hover { border-color: var(--gold); box-shadow: 0 4px 16px rgba(13,13,13,0.06); }
+    .sub-card.is-urgent { border-left: 3px solid var(--red); }
+
+    .sub-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .sub-title { font-size: 14px; font-weight: 700; line-height: 1.3; margin-bottom: 2px; }
+    .sub-meta-text { font-size: 11px; color: var(--muted); }
+
+    .chip { font-size: 9px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; padding: 4px 9px; white-space: nowrap; flex-shrink: 0; }
+    .chip-pending  { background: rgba(186,117,23,0.12); color: var(--orange); }
+    .chip-approved { background: rgba(59,109,17,0.10);  color: var(--green); }
+    .chip-rejected { background: rgba(161,43,43,0.10);  color: var(--red); }
+    .chip-urgent   { background: rgba(161,43,43,0.14);  color: var(--red); }
+
+    .meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 11px; }
+    .meta-box { background: var(--cream); border: 1px solid var(--border); padding: 8px 10px; }
+    .meta-box.hi { border-color: var(--gold); background: rgba(201,168,76,0.07); }
+    .meta-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); font-weight: 600; margin-bottom: 3px; }
+    .meta-val { font-size: 12px; font-weight: 500; color: var(--ink); word-break: break-word; }
+    .meta-box.hi .meta-val { font-weight: 700; }
+
+    .file-preview { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); background: var(--cream); margin-bottom: 10px; }
+    .file-icon { width: 32px; height: 32px; background: rgba(201,168,76,0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .file-name { font-size: 12px; font-weight: 500; flex: 1; word-break: break-all; }
+
+    .notes-strip { padding: 9px 12px; border-left: 3px solid var(--gold); background: rgba(201,168,76,0.06); margin-bottom: 10px; font-size: 12px; color: var(--ink); line-height: 1.6; }
+    .notes-strip strong { display: block; font-size: 9px; text-transform: uppercase; letter-spacing: 1.3px; color: var(--muted); margin-bottom: 2px; }
+    .reason-strip { padding: 9px 12px; border-left: 3px solid var(--red); background: rgba(161,43,43,0.06); margin-bottom: 10px; font-size: 12px; color: var(--ink); line-height: 1.6; }
+    .reason-strip strong { display: block; font-size: 9px; text-transform: uppercase; letter-spacing: 1.3px; color: var(--red); margin-bottom: 2px; }
+
+    /* ── Action buttons — prominent and clear ── */
+    .sub-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-top: 10px; border-top: 1px solid var(--border); margin-top: 4px; }
+    .btn { height: 36px; padding: 0 16px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; transition: transform 0.14s, opacity 0.2s, background 0.18s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+    .btn:hover:not(:disabled) { transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none !important; }
+    .btn-approve { background: var(--green); color: #fff; min-width: 148px; justify-content: center; }
+    .btn-approve:hover:not(:disabled) { background: #4a8a18; }
+    .btn-reject  { background: rgba(161,43,43,0.10); color: var(--red); border: 1.5px solid rgba(161,43,43,0.25); min-width: 120px; justify-content: center; }
+    .btn-reject:hover:not(:disabled) { background: rgba(161,43,43,0.18); }
+    .btn-ghost   { background: transparent; color: var(--ink); border: 1px solid var(--border); }
+    .btn-ghost:hover:not(:disabled) { border-color: var(--gold); }
+    .approved-stamp { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--green); font-weight: 600; }
+
+    /* ── Right panel ── */
+    .right-panel { display: flex; flex-direction: column; gap: 16px; }
+
+    /* ── Status bar (like student's stats) ── */
+    .status-bar { background: var(--white); border: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr 1fr; }
+    .stat-cell { text-align: center; padding: 16px 8px; }
+    .stat-cell:not(:last-child) { border-right: 1px solid var(--border); }
+    .stat-cell .stat-num { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; letter-spacing: -1px; }
+    .stat-cell .stat-label { font-size: 9px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+
+    /* ── Notifications card ── */
+    .notif-list { display: flex; flex-direction: column; gap: 9px; }
+    .notif-item { border: 1px solid var(--border); background: var(--white); padding: 12px 14px; }
+    .notif-item.urgent { border-left: 3px solid var(--red); background: rgba(161,43,43,0.025); }
+    .notif-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .notif-title { font-size: 12px; font-weight: 700; }
+    .notif-time  { font-size: 10px; color: var(--muted); white-space: nowrap; }
+    .notif-text  { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+    /* ── How it works card ── */
+    .how-it-works { font-size: 12px; line-height: 1.9; color: var(--muted); }
+    .how-it-works .step { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .how-it-works .step:last-child { border-bottom: none; }
+    .step-num { width: 22px; height: 22px; background: rgba(201,168,76,0.15); color: var(--gold); font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+    .step-text { flex: 1; }
+    .step-text strong { color: var(--ink); }
+
+    /* ── Empty / Skeleton ── */
+    .empty { padding: 36px 20px; text-align: center; border: 1px dashed rgba(13,13,13,0.12); color: var(--muted); font-size: 13px; line-height: 1.8; }
+    .empty-icon { font-size: 24px; margin-bottom: 8px; opacity: 0.35; }
+    .skel { background: linear-gradient(90deg,#ede8e0 25%,#e5e0d8 50%,#ede8e0 75%); background-size: 200% 100%; animation: shimmer 1.3s infinite; }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+    .skel-line { height: 12px; border-radius: 2px; margin-bottom: 9px; }
+
+    /* ── Profile / Status slide panel (mirrors student.html) ── */
+    .profile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; z-index: 200; }
+    .profile-overlay.open { display: block; }
+    .profile-panel {
+      position: fixed; top: 0; right: -340px; width: 320px; height: 100vh;
+      background: var(--white); border-left: 1px solid var(--border);
+      box-shadow: -8px 0 32px rgba(0,0,0,0.12);
+      transition: right 0.3s cubic-bezier(0.4,0,0.2,1);
+      z-index: 201; display: flex; flex-direction: column; overflow: hidden;
+    }
+    .profile-panel.open { right: 0; }
+    .profile-panel-header {
+      padding: 22px 22px 18px; border-bottom: 1px solid var(--border);
+      background: var(--ink); display: flex; align-items: center; justify-content: space-between;
+    }
+    .profile-panel-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; color: var(--white); }
+    .panel-close { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 22px; cursor: pointer; line-height: 1; }
+    .panel-close:hover { color: var(--white); }
+    .profile-panel-body { flex: 1; overflow-y: auto; padding: 26px 22px; }
+    .profile-avatar-large {
+      width: 68px; height: 68px; border-radius: 50%;
+      background: rgba(201,168,76,0.15); border: 2px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 700; color: var(--gold);
+      margin: 0 auto 14px;
+    }
+    .profile-name { text-align: center; font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+    .profile-uni  { text-align: center; font-size: 10px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 22px; }
+    .profile-divider { height: 1px; background: var(--border); margin: 18px 0; }
+    .profile-field { margin-bottom: 14px; }
+    .profile-field-label { font-size: 9px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+    .profile-field-value { font-size: 14px; font-weight: 500; color: var(--ink); word-break: break-all; }
+    /* FAC ID chip */
+    .fac-id-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(24,95,165,0.08); border: 1px solid rgba(24,95,165,0.25);
+      padding: 6px 14px; margin-bottom: 20px;
+    }
+    .fac-id-chip-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #185FA5; font-weight: 600; }
+    .fac-id-chip-value { font-size: 14px; font-weight: 700; color: #185FA5; font-family: monospace; letter-spacing: 1px; }
+    .profile-loading { text-align: center; padding: 40px 0; color: var(--muted); font-size: 13px; }
+    .profile-loading-spinner { width: 22px; height: 22px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 10px; }
+    .profile-stats-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .profile-stat { text-align: center; }
+    .profile-stat-num { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 900; color: var(--ink); }
+    .profile-stat-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+    .profile-stat-sep { width: 1px; background: var(--border); }
+
+    /* ── Dashboard view ── */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .dashboard-student-list { display: flex; flex-direction: column; gap: 10px; }
+    .student-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px; background: var(--white); border: 1px solid var(--border);
+      cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+      animation: fadeUp 0.25s ease both;
+    }
+    .student-row:hover { border-color: var(--gold); box-shadow: 0 4px 14px rgba(13,13,13,0.06); transform: translateY(-1px); }
+    .student-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(201,168,76,0.12); border: 1.5px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: var(--gold); flex-shrink: 0;
+    }
+    .student-info { flex: 1; min-width: 0; }
+    .student-id   { font-size: 14px; font-weight: 700; color: var(--ink); }
+    .student-name { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .student-badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-left: auto; }
+    .badge-count {
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      padding: 3px 9px; border-radius: 20px; white-space: nowrap;
+    }
+    .badge-total    { background: rgba(13,13,13,0.07);  color: var(--ink); }
+    .badge-pending  { background: rgba(133,79,11,0.12); color: var(--orange); }
+    .badge-approved { background: rgba(59,109,17,0.12); color: var(--green); }
+    .badge-rejected { background: rgba(161,43,43,0.10); color: var(--red); }
+    .badge-urgent   { background: rgba(161,43,43,0.14); color: var(--red); }
+    .student-arrow  { color: var(--muted); font-size: 14px; flex-shrink: 0; margin-left: 6px; transition: transform 0.2s; }
+    .student-row:hover .student-arrow { transform: translateX(3px); color: var(--gold); }
+
+    .dash-section-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 2.5px;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Reject Modal ── */
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.42); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 1000; }
+    .modal.open { display: flex; }
+    .modal-box { width: 100%; max-width: 480px; background: var(--white); border: 1px solid var(--border); box-shadow: 0 24px 64px rgba(0,0,0,0.18); animation: fadeUp 0.22s ease; }
+    .modal-head { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: rgba(161,43,43,0.04); }
+    .modal-title { font-size: 15px; font-weight: 700; color: var(--red); display: flex; align-items: center; gap: 8px; }
+    .close-btn { background: transparent; border: none; font-size: 20px; cursor: pointer; color: var(--muted); line-height: 1; }
+    .modal-body { padding: 20px; }
+    .modal-sub-info { background: var(--cream); border: 1px solid var(--border); padding: 10px 14px; margin-bottom: 16px; }
+    .modal-sub-info-title { font-size: 13px; font-weight: 600; color: var(--ink); }
+    .modal-sub-info-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .modal-note { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
+    .field-wrap { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .field-wrap label { font-size: 9px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: var(--muted); }
+    .field-wrap textarea { min-height: 100px; resize: vertical; padding: 10px 12px; border: 1.5px solid rgba(13,13,13,0.12); background: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; border-radius: 0; }
+    .field-wrap textarea:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(161,43,43,0.08); }
+    .char-count { font-size: 10px; color: var(--muted); text-align: right; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+    .btn-modal-cancel { padding: 9px 16px; background: transparent; border: 1.5px solid var(--border); font-family: inherit; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: border-color 0.2s; color: var(--ink); }
+    .btn-modal-cancel:hover { border-color: var(--gold); }
+    .btn-modal-reject { padding: 9px 20px; background: var(--red); color: #fff; border: none; font-family: inherit; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: background 0.2s, transform 0.15s; display: flex; align-items: center; gap: 7px; }
+    .btn-modal-reject:hover:not(:disabled) { background: #8b1f1f; transform: translateY(-1px); }
+    .btn-modal-reject:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Toast ── */
+    .toast { position: fixed; bottom: 26px; right: 26px; background: var(--ink); color: var(--white); padding: 12px 16px; font-size: 13px; font-weight: 500; border-left: 4px solid var(--gold); box-shadow: 0 8px 32px rgba(0,0,0,0.2); z-index: 9998; transform: translateY(70px); opacity: 0; transition: transform 0.3s, opacity 0.3s; max-width: 300px; pointer-events: none; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.ok  { border-left-color: var(--green); }
+    .toast.err { border-left-color: var(--red); }
+
+    .page-body::-webkit-scrollbar { width: 4px; }
+    .page-body::-webkit-scrollbar-thumb { background: rgba(13,13,13,0.14); }
+
+    @media (max-width: 1100px) { .content-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 900px) { .sidebar { display: none; } .stats-row { grid-template-columns: repeat(2, 1fr); } .meta-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .topbar, .page-body { padding-left: 14px; padding-right: 14px; } .stats-row { grid-template-columns: 1fr 1fr; } .meta-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">A<span>poorv</span></div>
+      <div class="logo-sub">Faculty Panel</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Main</div>
+      <a href="#" class="nav-item" id="navDashboard" onclick="showView('dashboard'); return false;">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/>
+          <rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/>
+        </svg>Dashboard
+      </a>
+      <a href="#" class="nav-item active" id="navDocuments" onclick="showView('documents'); return false;">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 2h7l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z"/>
+          <path d="M10 2v3h3"/><path d="M5 7h6M5 10h4"/>
+        </svg>Student Documents
+        <span class="nav-badge" id="navBadge">0</span>
+      </a>
+      <div class="nav-label">Account</div>
+      <a href="#" class="nav-item" onclick="openProfile(); return false;">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-5 6-5s6 1.7 6 5"/>
+        </svg>Profile
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" id="userAvatar">FA</div>
+        <div>
+          <div class="user-name" id="userName">Faculty</div>
+          <div class="user-role" id="userRole">Academic Reviewer</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-eyebrow">Apoorv</span>
+        <span class="topbar-sep">/</span>
+        <span class="topbar-page">Faculty Review</span>
+      </div>
+      <div class="topbar-right">
+        <button class="refresh-btn" id="refreshBtn" onclick="handleRefresh()">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M2 8a6 6 0 1 0 1.5-4"/><path d="M2 4v4h4"/>
+          </svg>Refresh
+        </button>
+        <span class="topbar-date" id="topbarDate"></span>
+      </div>
+    </div>
+
+    <div class="page-body">
+
+      <!-- ═══ VIEW: DASHBOARD ═══ -->
+      <div class="view" id="viewDashboard">
+        <h1 class="page-h1">Faculty <span>Dashboard</span></h1>
+        <p class="page-desc">Overview of all students who have submitted documents to you.</p>
+
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-num" id="dashStatTotal">0</div>
+            <div class="stat-label">Total Docs</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="dashStatStudents" style="color:var(--gold)">0</div>
+            <div class="stat-label">Students</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="dashStatPending" style="color:var(--orange)">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="dashStatApproved" style="color:var(--green)">0</div>
+            <div class="stat-label">Approved</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-inner">
+              <div class="card-icon">
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#c9a84c" stroke-width="1.5">
+                  <circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-5 6-5s6 1.7 6 5"/>
+                </svg>
+              </div>
+              <div>
+                <div class="card-title">Student Overview</div>
+                <div class="card-sub">Click any student to filter their submissions</div>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="dash-section-title">All Students</div>
+            <div class="dashboard-student-list" id="dashStudentList">
+              <div style="border:1px solid var(--border);padding:16px;background:#fff">
+                <div class="skel skel-line" style="width:40%"></div>
+                <div class="skel skel-line" style="width:60%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ VIEW: STUDENT DOCUMENTS ═══ -->
+      <div class="view active" id="viewDocuments">
+        <h1 class="page-h1">Faculty <span>Approval Desk</span></h1>
+        <p class="page-desc" id="docsPageDesc">Student submissions assigned to you appear here. Auto-refreshes every 30 s.</p>
+
+        <!-- Stats row -->
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-num" id="statTotal">0</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="statPending" style="color:var(--orange)">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="statApproved" style="color:var(--green)">0</div>
+            <div class="stat-label">Approved</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="statUrgent" style="color:var(--red)">0</div>
+            <div class="stat-label">Urgent</div>
+          </div>
+        </div>
+
+        <!-- Two-column grid -->
+        <div class="content-grid">
+
+          <!-- LEFT: Submission Queue -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-inner">
+                <div class="card-icon">
+                  <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#c9a84c" stroke-width="1.5">
+                    <path d="M3 2h7l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z"/>
+                    <path d="M10 2v3h3"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="card-title">Submission Queue</div>
+                  <div class="card-sub" id="queueSubtitle">Documents routed to your faculty ID</div>
+                </div>
+              </div>
+              <!-- Back button shown when filtering by student -->
+              <button id="clearFilterBtn" onclick="clearStudentFilter()" style="display:none"
+                class="btn btn-ghost" style="height:30px;padding:0 12px;font-size:10px;">
+                ← All Students
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="filter-row">
+                <button class="ftab active" onclick="setFilter('all',this)">All</button>
+                <button class="ftab" onclick="setFilter('pending',this)">Pending</button>
+                <button class="ftab" onclick="setFilter('approved',this)">Approved</button>
+                <button class="ftab" onclick="setFilter('rejected',this)">Rejected</button>
+              </div>
+              <div class="submissions-list" id="subList">
+                <div style="border:1px solid var(--border);padding:18px;background:#fff">
+                  <div class="skel skel-line" style="width:55%"></div>
+                  <div class="skel skel-line" style="width:35%"></div>
+                  <div class="skel skel-line" style="width:80%;margin-top:12px"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Status bar + Notifications + How it works -->
+          <div class="right-panel">
+
+            <div class="status-bar">
+              <div class="stat-cell">
+                <div class="stat-num" id="statTotalSm" style="color:var(--ink)">0</div>
+                <div class="stat-label">Total</div>
+              </div>
+              <div class="stat-cell">
+                <div class="stat-num" id="statApprovedSm" style="color:var(--green)">0</div>
+                <div class="stat-label">Approved</div>
+              </div>
+              <div class="stat-cell">
+                <div class="stat-num" id="statPendingSm" style="color:var(--orange)">0</div>
+                <div class="stat-label">Pending</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-header-inner">
+                  <div class="card-icon">
+                    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#c9a84c" stroke-width="1.5">
+                      <path d="M8 2a4 4 0 014 4v3l1 2H3l1-2V6a4 4 0 014-4z"/>
+                      <path d="M6.5 13a1.5 1.5 0 003 0"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="card-title">Notifications</div>
+                    <div class="card-sub">Urgent &amp; pending alerts</div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="notif-list" id="notifList">
+                  <div style="font-size:12px;color:var(--muted)">Loading…</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-header-inner">
+                  <div class="card-icon">
+                    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#c9a84c" stroke-width="1.5">
+                      <circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/>
+                    </svg>
+                  </div>
+                  <div><div class="card-title">How it works</div></div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="how-it-works">
+                  <div class="step"><div class="step-num">1</div><div class="step-text">Students submit documents and add your Faculty ID to the reviewer chain.</div></div>
+                  <div class="step"><div class="step-num">2</div><div class="step-text">The submission appears here when it's <strong>your turn</strong> to review.</div></div>
+                  <div class="step"><div class="step-num">3</div><div class="step-text"><strong style="color:var(--green)">Approve</strong> — signs &amp; passes to the next reviewer.</div></div>
+                  <div class="step"><div class="step-num">4</div><div class="step-text"><strong style="color:var(--red)">Reject</strong> — requires a written reason the student will see.</div></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div><!-- /viewDocuments -->
+
+    </div><!-- /page-body -->
+  </div><!-- /main -->
+
+  <!-- ══════════════════════════════════════════
+       PROFILE SLIDE PANEL
+  ══════════════════════════════════════════ -->
+  <div class="profile-overlay" id="profileOverlay" onclick="closeProfile()"></div>
+  <div class="profile-panel" id="profilePanel">
+    <div class="profile-panel-header">
+      <div class="profile-panel-title">My Profile</div>
+      <button class="panel-close" onclick="closeProfile()">×</button>
+    </div>
+    <div class="profile-panel-body" id="profilePanelBody">
+      <div class="profile-loading">
+        <div class="profile-loading-spinner"></div>Loading profile…
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       REJECT MODAL
+  ══════════════════════════════════════════ -->
+  <div class="modal" id="rejectModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-title">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="8" cy="8" r="6"/><path d="M8 5v3M8 11v.5"/>
+          </svg>
+          Reject Submission
+        </div>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Shows which submission is being rejected -->
+        <div class="modal-sub-info" id="modalSubInfo">
+          <div class="modal-sub-info-title" id="modalSubTitle">—</div>
+          <div class="modal-sub-info-meta" id="modalSubMeta">—</div>
+        </div>
+        <p class="modal-note">Provide a clear, specific reason — the student will see this message and can resubmit with corrections.</p>
+        <div class="field-wrap">
+          <label for="rejectReason">Reason for rejection <span style="color:var(--red)">*</span></label>
+          <textarea id="rejectReason" placeholder="e.g. Missing supervisor signature on page 2. Please obtain the HOD's signature and resubmit…" oninput="updateCharCount()"></textarea>
+          <div class="char-count"><span id="charCount">0</span> / 500 characters</div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
+          <button class="btn-modal-reject" id="rejectSubmitBtn" onclick="submitRejection()">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 4L4 12M4 4l8 8"/>
+            </svg>
+            Reject Document
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let allSubs      = [];
+    let activeFilter = 'all';
+    let rejectId     = null;
+    let pollTimer    = null;
+
+    let activeStudentFilter = null; // null = show all
+
+    // ── View switching ─────────────────────────────────────
+    function showView(view) {
+      document.getElementById('viewDashboard').classList.toggle('active', view === 'dashboard');
+      document.getElementById('viewDocuments').classList.toggle('active', view === 'documents');
+      document.getElementById('navDashboard').classList.toggle('active', view === 'dashboard');
+      document.getElementById('navDocuments').classList.toggle('active', view === 'documents');
+
+      if (view === 'dashboard') renderDashboard(allSubs);
+    }
+
+    // ── Dashboard: group by student ───────────────────────
+    function renderDashboard(subs) {
+      // Aggregate by studentId
+      const map = {};
+      subs.forEach(s => {
+        if (!map[s.studentId]) {
+          map[s.studentId] = { studentId: s.studentId, studentName: s.studentName, total: 0, pending: 0, approved: 0, rejected: 0, urgent: 0 };
+        }
+        map[s.studentId].total++;
+        if (s.status === 'pending')  map[s.studentId].pending++;
+        if (s.status === 'approved') map[s.studentId].approved++;
+        if (s.status === 'rejected') map[s.studentId].rejected++;
+        if (s.urgent && s.status === 'pending') map[s.studentId].urgent++;
+      });
+
+      const students = Object.values(map).sort((a, b) => b.pending - a.pending || b.total - a.total);
+
+      // Update dash stats
+      document.getElementById('dashStatTotal').textContent    = subs.length;
+      document.getElementById('dashStatStudents').textContent = students.length;
+      document.getElementById('dashStatPending').textContent  = subs.filter(s => s.status === 'pending').length;
+      document.getElementById('dashStatApproved').textContent = subs.filter(s => s.status === 'approved').length;
+
+      const list = document.getElementById('dashStudentList');
+      if (!students.length) {
+        list.innerHTML = `<div class="empty"><div class="empty-icon">👥</div>No student submissions yet.</div>`;
+        return;
+      }
+
+      list.innerHTML = students.map((st, i) => {
+        const initials = st.studentId.slice(0,2).toUpperCase();
+        const displayName = st.studentName && st.studentName !== st.studentId ? st.studentName : '—';
+        return `
+          <div class="student-row" style="animation-delay:${i*0.04}s" onclick="filterByStudent('${e(st.studentId)}')">
+            <div class="student-avatar">${initials}</div>
+            <div class="student-info">
+              <div class="student-id">${e(st.studentId)}</div>
+              <div class="student-name">${e(displayName)}</div>
+            </div>
+            <div class="student-badges">
+              <span class="badge-count badge-total">${st.total} docs</span>
+              ${st.pending  ? `<span class="badge-count badge-pending">${st.pending} pending</span>`  : ''}
+              ${st.approved ? `<span class="badge-count badge-approved">${st.approved} approved</span>` : ''}
+              ${st.rejected ? `<span class="badge-count badge-rejected">${st.rejected} rejected</span>` : ''}
+              ${st.urgent   ? `<span class="badge-count badge-urgent">🔴 urgent</span>` : ''}
+            </div>
+            <span class="student-arrow">→</span>
+          </div>`;
+      }).join('');
+    }
+
+    // ── Filter queue by student ────────────────────────────
+    function filterByStudent(studentId) {
+      activeStudentFilter = studentId;
+      showView('documents');
+      document.getElementById('docsPageDesc').textContent = `Showing all submissions from ${studentId}`;
+      document.getElementById('queueSubtitle').textContent = `Filtered: ${studentId}`;
+      document.getElementById('clearFilterBtn').style.display = 'flex';
+      // Reset status filter to 'all'
+      document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+      document.querySelector('.ftab').classList.add('active');
+      activeFilter = 'all';
+      renderSubs(allSubs);
+    }
+
+    function clearStudentFilter() {
+      activeStudentFilter = null;
+      document.getElementById('docsPageDesc').textContent = 'Student submissions assigned to you appear here. Auto-refreshes every 30 s.';
+      document.getElementById('queueSubtitle').textContent = 'Documents routed to your faculty ID';
+      document.getElementById('clearFilterBtn').style.display = 'none';
+      renderSubs(allSubs);
+    }
+
+    // ── Init ──────────────────────────────────────────────
+    document.getElementById('topbarDate').textContent =
+      new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+    loadUser();
+    load();
+    pollTimer = setInterval(() => load(true), 30000);
+
+    // ── Load user info ────────────────────────────────────
+    async function loadUser() {
+      try {
+        const res = await fetch('/api/auth/me');
+        if (!res.ok) { window.location.replace('/login.html'); return; }
+        const u = await res.json();
+        if (u.role !== 'faculty') { window.location.replace('/student.html'); return; }
+        const initials = ((u.firstName||'')[0]||'') + ((u.lastName||'')[0]||'') || (u.username||'FA').slice(0,2);
+        document.getElementById('userAvatar').textContent = initials.toUpperCase();
+        document.getElementById('userName').textContent   = (u.firstName && u.lastName) ? `${u.firstName} ${u.lastName}` : u.username;
+        document.getElementById('userRole').textContent   = u.designation || 'Faculty';
+      } catch { window.location.replace('/login.html'); }
+    }
+
+    async function logout() {
+      try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
+      window.location.href = '/login.html';
+    }
+
+    // ── Fetch submissions ─────────────────────────────────
+    async function load(silent = false) {
+      try {
+        const res = await fetch('/api/submissions/faculty/pending');
+        if (!res.ok) { if (!silent) toast('Failed to load submissions', 'err'); return; }
+        allSubs = await res.json();
+        renderStats(allSubs);
+        renderSubs(allSubs);
+        renderNotifs(allSubs);
+      } catch { if (!silent) toast('Network error', 'err'); }
+    }
+
+    async function handleRefresh() {
+      const btn = document.getElementById('refreshBtn');
+      btn.classList.add('spin');
+      await load();
+      setTimeout(() => btn.classList.remove('spin'), 650);
+    }
+
+    // ── Stats ─────────────────────────────────────────────
+    function renderStats(subs) {
+      const total    = subs.length;
+      const pending  = subs.filter(x => x.status === 'pending').length;
+      const approved = subs.filter(x => x.status === 'approved').length;
+      const urgent   = subs.filter(x => x.urgent && x.status === 'pending').length;
+
+      // Top row
+      document.getElementById('statTotal').textContent    = total;
+      document.getElementById('statPending').textContent  = pending;
+      document.getElementById('statApproved').textContent = approved;
+      document.getElementById('statUrgent').textContent   = urgent;
+      document.getElementById('navBadge').textContent     = pending;
+
+      // Right panel mini stats
+      document.getElementById('statTotalSm').textContent    = total;
+      document.getElementById('statApprovedSm').textContent = approved;
+      document.getElementById('statPendingSm').textContent  = pending;
+    }
+
+    // ── Filter ────────────────────────────────────────────
+    function setFilter(f, btn) {
+      activeFilter = f;
+      document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      renderSubs(allSubs);
+    }
+
+    // ── Render submissions ────────────────────────────────
+    function renderSubs(subs) {
+      const list = document.getElementById('subList');
+      // Apply student filter first, then status filter
+      let data = activeStudentFilter
+        ? subs.filter(s => s.studentId === activeStudentFilter)
+        : subs;
+      data = activeFilter === 'all' ? data : data.filter(s => s.status === activeFilter);
+
+      if (!data.length) {
+        list.innerHTML = `
+          <div class="empty">
+            <div class="empty-icon">📄</div>
+            ${activeFilter === 'all'
+              ? 'No submissions assigned to you right now.<br><small>Students must include your faculty ID when submitting.</small>'
+              : `No <strong>${activeFilter}</strong> submissions.`}
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = data.map((item, i) => {
+        const isUrgent  = item.urgent && item.status === 'pending';
+        const chipClass = item.status === 'approved' ? 'chip-approved'
+                        : item.status === 'rejected' ? 'chip-rejected'
+                        : isUrgent ? 'chip-urgent' : 'chip-pending';
+        const chipText  = item.status === 'approved' ? 'Signed / Approved'
+                        : item.status === 'rejected' ? 'Rejected'
+                        : isUrgent ? '🔴 Urgent' : 'Pending';
+        const isPending = item.status === 'pending';
+
+        return `
+          <div class="sub-card${isUrgent ? ' is-urgent' : ''}" style="animation-delay:${i*0.04}s">
+
+            <div class="sub-top">
+              <div>
+                <div class="sub-title">${e(item.title || 'Untitled Document')}</div>
+                <div class="sub-meta-text">${e(item.type || '')}${item.urgent ? ' · 🔴 Urgent' : ''}</div>
+              </div>
+              <div class="chip ${chipClass}">${chipText}</div>
+            </div>
+
+            <div class="meta-grid">
+              <div class="meta-box hi">
+                <div class="meta-label">Student ID</div>
+                <div class="meta-val">${e(item.studentId || '—')}</div>
+              </div>
+              <div class="meta-box">
+                <div class="meta-label">Student Name</div>
+                <div class="meta-val">${e(item.studentName || '—')}</div>
+              </div>
+              <div class="meta-box">
+                <div class="meta-label">Department</div>
+                <div class="meta-val">${e(item.department || '—')}</div>
+              </div>
+              <div class="meta-box">
+                <div class="meta-label">Semester</div>
+                <div class="meta-val">${e(item.semester || '—')}</div>
+              </div>
+              <div class="meta-box">
+                <div class="meta-label">Doc Type</div>
+                <div class="meta-val">${e(item.type || '—')}</div>
+              </div>
+              <div class="meta-box">
+                <div class="meta-label">Submitted</div>
+                <div class="meta-val">${fmtDate(item.submittedAt)}</div>
+              </div>
+            </div>
+
+            ${item.fileName ? `
+              <div class="file-preview">
+                <div class="file-icon">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#c9a84c" stroke-width="1.5">
+                    <path d="M3 2h7l3 3v9H3z"/><path d="M10 2v3h3"/>
+                  </svg>
+                </div>
+                <div class="file-name">📎 ${e(item.fileName)}</div>
+                ${item.filePath ? `
+                  <a class="btn btn-ghost" href="${item.filePath}" target="_blank"
+                     style="margin-left:auto;height:28px;padding:0 10px;font-size:10px;border-color:var(--gold);color:var(--gold);">
+                    Open ↗
+                  </a>` : ''}
+              </div>` : ''}
+
+            ${item.notes ? `
+              <div class="notes-strip">
+                <strong>Student Notes</strong>${e(item.notes)}
+              </div>` : ''}
+
+            ${item.status === 'rejected' && item.rejectionReason ? `
+              <div class="reason-strip">
+                <strong>Rejection Reason</strong>${e(item.rejectionReason)}
+              </div>` : ''}
+
+            <div class="sub-actions">
+              ${isPending ? `
+                <button class="btn btn-approve" onclick="approve('${item._id}', this)">
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 8l4 4 6-6"/>
+                  </svg>
+                  Sign &amp; Approve
+                </button>
+                <button class="btn btn-reject" onclick="openModal('${item._id}', '${e(item.title)}', '${e(item.studentId)}')">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 4L4 12M4 4l8 8"/>
+                  </svg>
+                  Reject
+                </button>
+              ` : ''}
+              ${item.status === 'approved' ? `
+                <div class="approved-stamp">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 8l4 4 6-6"/>
+                  </svg>
+                  Signed on ${fmtDate(item.signedAt)}
+                </div>` : ''}
+            </div>
+
+          </div>`;
+      }).join('');
+    }
+
+    // ── Notifications ─────────────────────────────────────
+    function renderNotifs(subs) {
+      const box     = document.getElementById('notifList');
+      const pending = subs.filter(s => s.status === 'pending');
+
+      if (!pending.length) {
+        box.innerHTML = `<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px 0;">✓ All caught up — no pending items.</div>`;
+        return;
+      }
+
+      box.innerHTML = pending.map(item => `
+        <div class="notif-item${item.urgent ? ' urgent' : ''}">
+          <div class="notif-head">
+            <div class="notif-title">${item.urgent ? '🔴 Urgent' : 'Pending Signature'}</div>
+            <div class="notif-time">${fmtDate(item.submittedAt)}</div>
+          </div>
+          <div class="notif-text">
+            <strong>${e(item.studentId)}</strong> — "${e(item.title || 'Untitled')}"
+          </div>
+        </div>`).join('');
+    }
+
+    // ── Approve ───────────────────────────────────────────
+    async function approve(id, btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin .6s linear infinite"><path d="M2 8a6 6 0 1 0 1.5-4"/></svg> Approving…`;
+      try {
+        const res  = await fetch(`/api/submissions/faculty/${id}/approve`, {
+          method: 'PUT', headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          toast('✓ Document signed and approved', 'ok');
+          await load(true);
+        } else {
+          toast(data.message || 'Approval failed', 'err');
+          btn.disabled = false;
+          btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l4 4 6-6"/></svg> Sign &amp; Approve`;
+        }
+      } catch {
+        toast('Network error', 'err');
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l4 4 6-6"/></svg> Sign &amp; Approve`;
+      }
+    }
+
+    // ── Reject Modal ──────────────────────────────────────
+    function openModal(id, title, studentId) {
+      rejectId = id;
+      document.getElementById('rejectReason').value = '';
+      document.getElementById('charCount').textContent = '0';
+      document.getElementById('modalSubTitle').textContent = title || 'Untitled';
+      document.getElementById('modalSubMeta').textContent  = `Student: ${studentId}`;
+      document.getElementById('rejectModal').classList.add('open');
+      setTimeout(() => document.getElementById('rejectReason').focus(), 80);
+    }
+
+    function closeModal() {
+      rejectId = null;
+      document.getElementById('rejectModal').classList.remove('open');
+    }
+
+    function updateCharCount() {
+      const len = document.getElementById('rejectReason').value.length;
+      document.getElementById('charCount').textContent = len;
+    }
+
+    async function submitRejection() {
+      const reason = document.getElementById('rejectReason').value.trim();
+      if (!reason) { toast('Please enter a rejection reason', 'err'); return; }
+      if (reason.length < 10) { toast('Please provide a more detailed reason (min 10 chars)', 'err'); return; }
+
+      const btn = document.getElementById('rejectSubmitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Rejecting…';
+
+      try {
+        const res  = await fetch(`/api/submissions/faculty/${rejectId}/reject`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          toast('Document rejected — student has been notified', 'err');
+          closeModal();
+          await load(true);
+        } else {
+          toast(data.message || 'Rejection failed', 'err');
+        }
+      } catch {
+        toast('Network error', 'err');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4L4 12M4 4l8 8"/></svg> Reject Document`;
+      }
+    }
+
+    // Close reject modal on backdrop click
+    document.getElementById('rejectModal').addEventListener('click', ev => {
+      if (ev.target === ev.currentTarget) closeModal();
+    });
+
+    // ── Profile Panel ─────────────────────────────────────
+    async function openProfile() {
+      document.getElementById('profileOverlay').classList.add('open');
+      setTimeout(() => document.getElementById('profilePanel').classList.add('open'), 10);
+      document.getElementById('profilePanelBody').innerHTML =
+        `<div class="profile-loading"><div class="profile-loading-spinner"></div>Loading profile…</div>`;
+
+      try {
+        const res = await fetch('/api/auth/me');
+        if (!res.ok) {
+          document.getElementById('profilePanelBody').innerHTML =
+            `<div class="profile-loading" style="color:var(--red)">Failed to load profile (${res.status}).</div>`;
+          return;
+        }
+        const u = await res.json();
+
+        // Update sidebar avatar/name in case it changed
+        const initials = ((u.firstName||'')[0]||'') + ((u.lastName||'')[0]||'') || (u.username||'FA').slice(0,2);
+        document.getElementById('userAvatar').textContent = initials.toUpperCase();
+        document.getElementById('userName').textContent   = (u.firstName && u.lastName) ? `${u.firstName} ${u.lastName}` : u.username;
+        document.getElementById('userRole').textContent   = u.designation || 'Faculty';
+
+        const total    = allSubs.length;
+        const approved = allSubs.filter(s => s.status === 'approved').length;
+        const pending  = allSubs.filter(s => s.status === 'pending').length;
+        const fullName = (u.firstName && u.lastName) ? `${u.firstName} ${u.lastName}` : u.username;
+
+        document.getElementById('profilePanelBody').innerHTML = `
+          <div class="profile-avatar-large">${e(initials.toUpperCase())}</div>
+          <div class="profile-name">${e(fullName)}</div>
+          <div class="profile-uni">MIT-ADT University · Faculty</div>
+
+          <div style="display:flex;justify-content:center;margin-bottom:18px;">
+            <div class="fac-id-chip">
+              <span class="fac-id-chip-label">Faculty ID</span>
+              <span class="fac-id-chip-value">${e(u.username)}</span>
+            </div>
+          </div>
+
+          <div class="profile-divider"></div>
+
+          ${u.firstName ? `
+            <div class="profile-field">
+              <div class="profile-field-label">First Name</div>
+              <div class="profile-field-value">${e(u.firstName)}</div>
+            </div>` : ''}
+          ${u.lastName ? `
+            <div class="profile-field">
+              <div class="profile-field-label">Last Name</div>
+              <div class="profile-field-value">${e(u.lastName)}</div>
+            </div>` : ''}
+          ${u.email ? `
+            <div class="profile-field">
+              <div class="profile-field-label">Email</div>
+              <div class="profile-field-value">${e(u.email)}</div>
+            </div>` : ''}
+          ${u.department ? `
+            <div class="profile-field">
+              <div class="profile-field-label">Department</div>
+              <div class="profile-field-value">${e(u.department)}</div>
+            </div>` : ''}
+          ${u.designation ? `
+            <div class="profile-field">
+              <div class="profile-field-label">Designation</div>
+              <div class="profile-field-value">${e(u.designation)}</div>
+            </div>` : ''}
+          ${u.role ? `
+            <div class="profile-field">
+              <div class="profile-field-label">Role</div>
+              <div class="profile-field-value" style="text-transform:capitalize">${e(u.role)}</div>
+            </div>` : ''}
+
+          <div class="profile-divider"></div>
+
+          <div class="profile-stats-row">
+            <div class="profile-stat">
+              <div class="profile-stat-num">${total}</div>
+              <div class="profile-stat-label">Total</div>
+            </div>
+            <div class="profile-stat-sep"></div>
+            <div class="profile-stat">
+              <div class="profile-stat-num" style="color:var(--green)">${approved}</div>
+              <div class="profile-stat-label">Approved</div>
+            </div>
+            <div class="profile-stat-sep"></div>
+            <div class="profile-stat">
+              <div class="profile-stat-num" style="color:var(--orange)">${pending}</div>
+              <div class="profile-stat-label">Pending</div>
+            </div>
+          </div>`;
+      } catch {
+        document.getElementById('profilePanelBody').innerHTML =
+          `<div class="profile-loading" style="color:var(--red)">Network error. Could not load profile.</div>`;
+      }
+    }
+
+    function closeProfile() {
+      document.getElementById('profilePanel').classList.remove('open');
+      document.getElementById('profileOverlay').classList.remove('open');
+    }
+
+    // ── Helpers ───────────────────────────────────────────
+    function e(s = '') {
+      return String(s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+    }
+
+    function fmtDate(d) {
+      if (!d) return '—';
+      return new Date(d).toLocaleString('en-IN', {
+        day: '2-digit', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    function toast(msg, type = '') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast' + (type ? ` ${type}` : '');
+      t.classList.add('show');
+      clearTimeout(t._t);
+      t._t = setTimeout(() => t.classList.remove('show'), 3500);
+    }
+  </script>
+</body>
+</html>

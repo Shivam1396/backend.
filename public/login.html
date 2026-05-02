@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apoorv — Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink:    #0d0d0d;
+            --cream:  #f5f0e8;
+            --gold:   #c9a84c;
+            --gold-lt:#e8d5a3;
+            --white:  #ffffff;
+            --muted:  #6b6560;
+            --error:  #c0392b;
+            --success:#2e7d32;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .wrapper {
+            display: flex;
+            flex-direction: row;
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* ── LEFT FORM PANEL ── */
+        .panel-form {
+            flex: 0 0 420px;
+            background: var(--cream);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 56px 48px;
+            position: relative;
+        }
+
+        .panel-form::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, transparent, var(--gold), var(--gold-lt), transparent);
+        }
+
+        .form-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .eyebrow-line { width: 28px; height: 1.5px; background: var(--gold); }
+
+        .eyebrow-text {
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .form-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--ink);
+            letter-spacing: -1px;
+            line-height: 1.1;
+            margin-bottom: 8px;
+        }
+
+        .form-title span { color: var(--gold); font-style: italic; }
+
+        .form-subtitle {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 28px;
+            font-weight: 300;
+            line-height: 1.6;
+        }
+
+        /* ── ROLE BADGE ── */
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border-radius: 2px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+            height: 28px;
+        }
+
+        .role-badge.hidden { opacity: 0; pointer-events: none; }
+
+        .role-badge.student {
+            background: rgba(201,168,76,0.15);
+            color: #7a5c10;
+            border: 1px solid rgba(201,168,76,0.4);
+        }
+
+        .role-badge.faculty {
+            background: rgba(24,95,165,0.12);
+            color: #185FA5;
+            border: 1px solid rgba(24,95,165,0.3);
+        }
+
+        .role-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .role-badge.student .role-dot { background: var(--gold); }
+        .role-badge.faculty .role-dot { background: #185FA5; }
+
+        /* ── FIELDS ── */
+        .field { margin-bottom: 16px; }
+
+        .field label {
+            display: block;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 7px;
+        }
+
+        .field-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 7px;
+        }
+
+        .field-row label {
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .forgot-link {
+            font-size: 11px;
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            transition: color 0.2s;
+        }
+
+        .forgot-link:hover { color: var(--ink); }
+
+        .field input {
+            width: 100%;
+            height: 46px;
+            padding: 0 16px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            color: var(--ink);
+            background: var(--white);
+            border: 1.5px solid rgba(13,13,13,0.12);
+            border-radius: 0;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .field input::placeholder { color: rgba(13,13,13,0.3); }
+
+        .field input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201,168,76,0.15);
+        }
+
+        .field input.is-valid {
+            border-color: var(--success);
+            box-shadow: 0 0 0 3px rgba(46,125,50,0.1);
+        }
+
+        .field input.is-invalid {
+            border-color: var(--error);
+            box-shadow: 0 0 0 3px rgba(192,57,43,0.1);
+        }
+
+        .field-hint {
+            font-size: 11px;
+            margin-top: 5px;
+            min-height: 16px;
+        }
+
+        .field-hint.error   { color: var(--error); }
+        .field-hint.success { color: var(--success); }
+        .field-hint.neutral { color: var(--muted); }
+
+        /* ── BUTTONS ── */
+        .btn-submit {
+            width: 100%;
+            height: 48px;
+            background: var(--gold);
+            color: var(--ink);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background 0.2s, transform 0.15s, opacity 0.2s;
+            text-decoration: none;
+            margin-top: 4px;
+        }
+
+        .btn-submit:hover:not(:disabled) { background: var(--gold-lt); transform: translateY(-1px); }
+        .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .btn-arrow { display: inline-block; transition: transform 0.2s; }
+        .btn-submit:hover:not(:disabled) .btn-arrow { transform: translateX(4px); }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 20px 0;
+        }
+
+        .divider-line { flex: 1; height: 1px; background: rgba(13,13,13,0.1); }
+
+        .divider-text {
+            font-size: 11px;
+            color: var(--muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .btn-ghost {
+            width: 100%;
+            height: 48px;
+            background: transparent;
+            color: var(--ink);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border: 1.5px solid rgba(13,13,13,0.18);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: border-color 0.2s, background 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--gold);
+            background: rgba(201,168,76,0.06);
+        }
+
+        .form-footer-note {
+            margin-top: 24px;
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .form-footer-note a { color: var(--gold); text-decoration: none; font-weight: 500; }
+
+        /* ── RIGHT IMAGE PANEL ── */
+        .panel-image {
+            flex: 1 1 55%;
+            position: relative;
+            overflow: hidden;
+            background: var(--ink);
+        }
+
+        .panel-image-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(225deg, rgba(13,13,13,0.75) 0%, rgba(13,13,13,0.45) 55%, rgba(201,168,76,0.12) 100%);
+        }
+
+        .image-quote {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            padding: 0 40px;
+            width: 100%;
+        }
+
+        .image-quote-mark {
+            font-family: 'Playfair Display', serif;
+            font-size: 80px;
+            color: var(--gold);
+            opacity: 0.4;
+            line-height: 0.7;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .image-quote-text {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(20px, 2.5vw, 28px);
+            font-weight: 700;
+            color: var(--white);
+            line-height: 1.3;
+            letter-spacing: -0.5px;
+            opacity: 0;
+            animation: riseUp 0.9s 0.5s ease forwards;
+        }
+
+        .image-quote-text span { color: var(--gold-lt); font-style: italic; }
+
+        .image-quote-attr {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            opacity: 0;
+            animation: riseUp 0.9s 0.8s ease forwards;
+        }
+
+        .attr-line { width: 24px; height: 1px; background: var(--gold); opacity: 0.6; }
+
+        .attr-text {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .panel-image-branding {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            text-align: right;
+        }
+
+        .brand-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 40px;
+            font-weight: 900;
+            color: var(--white);
+            letter-spacing: -2px;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .brand-logo span { color: var(--gold); }
+
+        .brand-tagline {
+            font-size: 12px;
+            font-weight: 300;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 1px;
+        }
+
+        /* Login error toast */
+        .login-toast {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            background: var(--ink);
+            color: var(--white);
+            padding: 12px 18px;
+            font-size: 13px;
+            font-weight: 500;
+            border-left: 4px solid var(--error);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            z-index: 999;
+            transform: translateY(80px);
+            opacity: 0;
+            transition: transform 0.3s, opacity 0.3s;
+            max-width: 320px;
+        }
+        .login-toast.show { transform: translateY(0); opacity: 1; }
+        .login-toast.success { border-left-color: var(--success); }
+
+        /* Spinner */
+        .spinner { width:16px; height:16px; border:2px solid rgba(13,13,13,0.2); border-top-color:var(--ink); border-radius:50%; animation:spin 0.7s linear infinite; display:none; }
+        .btn-submit.loading .spinner { display:block; }
+        .btn-submit.loading .btn-text { display:none; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        @keyframes riseUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            body { overflow: auto; }
+            .wrapper { flex-direction: column-reverse; height: auto; }
+            .panel-image { flex: none; height: 45vh; }
+            .panel-form { flex: none; padding: 40px 28px; }
+            .panel-form::after { display: none; }
+            .image-quote { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+
+    <!-- LEFT: FORM -->
+    <div class="panel-form">
+
+        <div class="form-eyebrow">
+            <div class="eyebrow-line"></div>
+            <span class="eyebrow-text">MIT-ADT University</span>
+        </div>
+
+        <h1 class="form-title">Welcome <span>back.</span></h1>
+        <p class="form-subtitle">Sign in to Apoorv and pick up right where you left off.</p>
+
+        <!-- Role badge — auto-detected from username -->
+        <div class="role-badge hidden" id="roleBadge">
+            <span class="role-dot"></span>
+            <span id="roleLabel"></span>
+        </div>
+
+        <div class="field">
+            <label for="username">Username / ID</label>
+            <input type="text" id="username" placeholder="e.g. ADT24SOCB1234 or FAC0042" autocomplete="off" required>
+            <div class="field-hint neutral" id="usernameHint">Student: ADT24SOCBXXXX &nbsp;|&nbsp; Faculty: FACXXXX</div>
+        </div>
+
+        <div class="field">
+            <div class="field-row">
+                <label for="password">Password</label>
+                <a href="#" class="forgot-link">Forgot password?</a>
+            </div>
+            <input type="password" id="password" placeholder="Enter your password" required>
+        </div>
+
+        <button class="btn-submit" id="signInBtn" disabled>
+            <div class="spinner"></div>
+            <span class="btn-text">Sign In <span class="btn-arrow">→</span></span>
+        </button>
+
+        <div class="divider">
+            <div class="divider-line"></div>
+            <span class="divider-text">or</span>
+            <div class="divider-line"></div>
+        </div>
+
+        <a href="signup.html" class="btn-ghost">Create an Account</a>
+
+        <p class="form-footer-note">
+            By signing in you agree to Apoorv's <a href="#">Terms of Use</a>.
+        </p>
+
+    </div>
+
+    <!-- RIGHT: IMAGE -->
+    <div class="panel-image">
+        <div class="panel-image-overlay"></div>
+
+        <div class="image-quote">
+            <img src="mit-adt-university.jpg" alt="MIT ADT University" width="300">
+            <span class="image-quote-mark">"</span>
+            <p class="image-quote-text">
+                Turning hours into <span>seconds,</span><br>
+                complexity into <span>clarity.</span>
+            </p>
+            <div class="image-quote-attr">
+                <div class="attr-line"></div>
+                <span class="attr-text">Apoorv Platform</span>
+                <div class="attr-line"></div>
+            </div>
+        </div>
+
+        <div class="panel-image-branding">
+            <div class="brand-logo">A<span>poorv</span></div>
+            <p class="brand-tagline">Pune, Maharashtra</p>
+        </div>
+    </div>
+
+</div>
+
+<div class="login-toast" id="loginToast"></div>
+
+<script>
+    const usernameInput = document.getElementById('username');
+    const usernameHint  = document.getElementById('usernameHint');
+    const roleBadge     = document.getElementById('roleBadge');
+    const roleLabel     = document.getElementById('roleLabel');
+    const signInBtn     = document.getElementById('signInBtn');
+    const passwordInput = document.getElementById('password');
+
+    const STUDENT_REGEX = /^ADT\d{2}[A-Z]+B\d{4}$/i;
+    const FACULTY_REGEX = /^FAC\d{4}$/i;
+
+    function showToast(msg, isSuccess) {
+        const t = document.getElementById('loginToast');
+        t.textContent = msg;
+        t.className = 'login-toast' + (isSuccess ? ' success' : '');
+        t.classList.add('show');
+        clearTimeout(t._timer);
+        t._timer = setTimeout(() => t.classList.remove('show'), 3500);
+    }
+
+    function validateUsername(raw) {
+        const v = raw.trim().toUpperCase();
+        if (!v) return { valid: false, role: null, msg: 'Student: ADT24SOCBXXXX | Faculty: FACXXXX', type: 'neutral' };
+        if (STUDENT_REGEX.test(v)) return { valid: true, role: 'student', msg: '✓ Student account detected', type: 'success' };
+        if (FACULTY_REGEX.test(v)) return { valid: true, role: 'faculty', msg: '✓ Faculty account detected', type: 'success' };
+        return { valid: false, role: null, msg: 'Unrecognised format — use ADT24SOCBXXXX or FACXXXX', type: 'error' };
+    }
+
+    function applyRole(role) {
+        if (role === 'student') {
+            roleBadge.className = 'role-badge student';
+            roleLabel.textContent = 'Student Account';
+        } else if (role === 'faculty') {
+            roleBadge.className = 'role-badge faculty';
+            roleLabel.textContent = 'Faculty Account';
+        } else {
+            roleBadge.className = 'role-badge hidden';
+        }
+    }
+
+    function updateState() {
+        const result = validateUsername(usernameInput.value);
+        const passOk = passwordInput.value.trim() !== '';
+
+        usernameHint.textContent = result.msg;
+        usernameHint.className = `field-hint ${result.type}`;
+
+        usernameInput.classList.remove('is-valid', 'is-invalid');
+        if (result.valid) usernameInput.classList.add('is-valid');
+        else if (result.type === 'error') usernameInput.classList.add('is-invalid');
+
+        applyRole(result.role);
+        signInBtn.disabled = !(result.valid && passOk);
+    }
+
+    usernameInput.addEventListener('input', updateState);
+    passwordInput.addEventListener('input', updateState);
+
+    // Allow Enter key to submit
+    passwordInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !signInBtn.disabled) signInBtn.click();
+    });
+
+    signInBtn.addEventListener('click', async () => {
+        signInBtn.classList.add('loading');
+        signInBtn.disabled = true;
+
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    username: usernameInput.value.trim().toUpperCase(),
+                    password: passwordInput.value
+                })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                showToast('✓ ' + data.message, true);
+                setTimeout(() => {
+                    window.location.href = data.redirect || '/';
+                }, 400);
+            } else {
+                showToast(data.message || 'Login failed');
+                signInBtn.classList.remove('loading');
+                signInBtn.disabled = false;
+                updateState();
+            }
+        } catch (err) {
+            showToast('Network error — is the server running?');
+            signInBtn.classList.remove('loading');
+            signInBtn.disabled = false;
+            updateState();
+        }
+    });
+</script>
+
+</body>
+</html>

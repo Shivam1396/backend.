@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apoorv — Create Account</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink: #0d0d0d;
+            --cream: #f5f0e8;
+            --gold: #c9a84c;
+            --gold-lt:#e8d5a3;
+            --white: #ffffff;
+            --muted: #6b6560;
+            --error: #c0392b;
+            --success:#2e7d32;
+            --faculty-blue: #185FA5;
+        }
+
+        body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); height: 100vh; overflow: hidden; }
+
+        .wrapper { display: flex; height: 100vh; width: 100%; }
+
+        .panel-form {
+            flex: 0 0 460px;
+            background: var(--cream);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 32px 48px 40px;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .panel-form::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, transparent, var(--gold), var(--gold-lt), transparent);
+        }
+
+        .form-eyebrow { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+        .eyebrow-line { width: 28px; height: 1.5px; background: var(--gold); }
+        .eyebrow-text { font-size: 10px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+
+        .form-title { font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 900; color: var(--ink); letter-spacing: -1px; line-height: 1.1; margin-bottom: 8px; }
+        .form-title span { color: var(--gold); font-style: italic; }
+        .form-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 24px; font-weight: 300; line-height: 1.6; }
+
+        /* ── Improved Toggle ── */
+        .role-toggle {
+            position: relative;
+            display: flex;
+            width: 100%;
+            background: rgba(255,255,255,0.6);
+            border: 1.5px solid rgba(13,13,13,0.14);
+            padding: 4px;
+            margin-top: 14px;
+            margin-bottom: 10px;
+        }
+
+        .role-toggle-slider {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            height: calc(100% - 8px);
+            width: calc(50% - 4px);
+            background: var(--gold);
+            transition: transform 0.24s cubic-bezier(0.4, 0, 0.2, 1),
+                        background 0.24s ease;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .role-toggle-slider.faculty {
+            transform: translateX(100%);
+            background: var(--faculty-blue);
+        }
+
+        .role-toggle-btn {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            height: 36px;
+            background: transparent;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: rgba(13,13,13,0.38);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: color 0.24s ease;
+        }
+
+        .role-toggle-btn.active { color: #fff; }
+
+        .role-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.5;
+            transition: opacity 0.24s;
+            flex-shrink: 0;
+        }
+
+        .role-toggle-btn.active .role-dot { opacity: 1; }
+        /* ── End Toggle ── */
+
+        .field { margin-bottom: 14px; }
+        .field label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+        .field input,.field select {
+            width: 100%; height: 46px; padding: 0 16px;
+            font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink);
+            background: var(--white); border: 1.5px solid rgba(13,13,13,0.12);
+            border-radius: 0; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+            appearance: none; -webkit-appearance: none;
+        }
+        .field select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6560' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 14px center; cursor: pointer;
+        }
+        .field input::placeholder { color: rgba(13,13,13,0.3); }
+        .field input:focus,.field select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.15); }
+        .field input.is-valid { border-color: var(--success); box-shadow: 0 0 0 3px rgba(46,125,50,0.1); }
+        .field input.is-invalid { border-color: var(--error); box-shadow: 0 0 0 3px rgba(192,57,43,0.1); }
+        .field-hint { font-size: 11px; margin-top: 4px; min-height: 15px; }
+        .field-hint.error { color: var(--error); }
+        .field-hint.success { color: var(--success); }
+        .field-hint.neutral { color: var(--muted); }
+        .field-row-two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        #studentFields { display: block; }
+        #facultyFields { display: none; }
+
+        .id-preview {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; background: rgba(201,168,76,0.08);
+            border: 1px dashed rgba(201,168,76,0.4); margin-bottom: 14px;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .id-preview.visible { opacity: 1; }
+        .id-preview-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); font-weight: 500; white-space: nowrap; }
+        .id-preview-value { font-size: 13px; font-weight: 500; color: #7a5c10; font-family: monospace; letter-spacing: 1px; }
+
+        .id-preview.faculty-mode { background: rgba(24,95,165,0.07); border-color: rgba(24,95,165,0.3); }
+        .id-preview.faculty-mode .id-preview-value { color: var(--faculty-blue); }
+
+        .strength-bar { display: flex; gap: 4px; margin-top: 6px; }
+        .strength-segment { flex: 1; height: 3px; background: rgba(13,13,13,0.1); transition: background 0.3s; }
+        .strength-segment.weak { background: var(--error); }
+        .strength-segment.medium { background: var(--gold); }
+        .strength-segment.strong { background: var(--success); }
+
+        .btn-submit {
+            width: 100%; height: 48px; background: var(--gold); color: var(--ink);
+            font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+            letter-spacing: 2px; text-transform: uppercase; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: background 0.2s, transform 0.15s, opacity 0.2s; margin-top: 6px;
+        }
+        .btn-submit:hover:not(:disabled) { background: var(--gold-lt); transform: translateY(-1px); }
+        .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-arrow { display: inline-block; transition: transform 0.2s; }
+        .btn-submit:hover:not(:disabled) .btn-arrow { transform: translateX(4px); }
+
+        .form-footer-note { margin-top: 18px; font-size: 12px; color: var(--muted); text-align: center; }
+        .form-footer-note a { color: var(--gold); text-decoration: none; font-weight: 500; }
+
+        .panel-image { flex: 1; position: relative; overflow: hidden; }
+        .panel-image img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; transform: scale(1.05); animation: zoomOut 8s ease forwards; }
+        @keyframes zoomOut { to { transform: scale(1); } }
+        .panel-image-overlay { position: absolute; inset: 0; background: linear-gradient(225deg, rgba(13,13,13,0.65) 0%, rgba(13,13,13,0.25) 55%, rgba(201,168,76,0.12) 100%); }
+        .image-quote { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; padding: 0 40px; width: 100%; }
+        .image-quote-mark { font-family: 'Playfair Display', serif; font-size: 80px; color: var(--gold); opacity: 0.4; line-height: 0.7; display: block; margin-bottom: 12px; }
+        .image-quote-text { font-family: 'Playfair Display', serif; font-size: clamp(20px,2.5vw,28px); font-weight: 700; color: var(--white); line-height: 1.3; letter-spacing: -0.5px; opacity: 0; animation: riseUp 0.9s 0.5s ease forwards; }
+        .image-quote-text span { color: var(--gold-lt); font-style: italic; }
+        .image-quote-attr { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 20px; opacity: 0; animation: riseUp 0.9s 0.8s ease forwards; }
+        .attr-line { width: 24px; height: 1px; background: var(--gold); opacity: 0.6; }
+        .attr-text { font-size: 11px; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+        .panel-image-branding { position: absolute; bottom: 40px; right: 40px; text-align: right; }
+        .brand-logo { font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 900; color: var(--white); letter-spacing: -2px; line-height: 1; margin-bottom: 6px; }
+        .brand-logo span { color: var(--gold); }
+        .brand-tagline { font-size: 12px; font-weight: 300; color: rgba(255,255,255,0.5); letter-spacing: 1px; }
+        @keyframes riseUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+        .toast { position: fixed; bottom: 32px; right: 32px; background: var(--ink); color: var(--white); padding: 14px 20px; font-size: 13px; font-weight: 500; border-left: 4px solid var(--gold); box-shadow: 0 8px 32px rgba(0,0,0,0.2); z-index: 999; transform: translateY(80px); opacity: 0; transition: transform 0.3s, opacity 0.3s; max-width: 340px; }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.error { border-left-color: var(--error); }
+
+        @media (max-width: 768px) {
+            body { overflow: auto; }
+            .wrapper { flex-direction: column-reverse; height: auto; }
+            .panel-image { flex: none; height: 40vh; }
+            .panel-form { flex: none; padding: 32px 24px; overflow-y: visible; }
+            .panel-form::after { display: none; }
+            .image-quote { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <div class="panel-form">
+
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+            <div class="eyebrow-line"></div>
+            <span class="eyebrow-text">MIT-ADT University</span>
+        </div>
+
+        <h1 class="form-title">Join <span>Apoorv.</span></h1>
+
+        <div class="role-toggle">
+            <div class="role-toggle-slider" id="roleSlider"></div>
+            <button class="role-toggle-btn active" id="btnStudent" onclick="setRole('student')">
+                <span class="role-dot"></span> Student
+            </button>
+            <button class="role-toggle-btn" id="btnFaculty" onclick="setRole('faculty')">
+                <span class="role-dot"></span> Faculty
+            </button>
+        </div>
+
+        <p class="form-subtitle" id="formSubtitle" style="margin-bottom:14px;">Create your student account to submit documents, track progress, and connect with faculty.</p>
+
+        <div class="id-preview" id="idPreview">
+            <span class="id-preview-label">Your ID will be</span>
+            <span class="id-preview-value" id="idPreviewValue">—</span>
+        </div>
+
+        <div class="field-row-two">
+            <div class="field">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" placeholder="Riya" autocomplete="off">
+            </div>
+            <div class="field">
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" placeholder="Sharma" autocomplete="off">
+            </div>
+        </div>
+
+        <div id="studentFields">
+            <div class="field-row-two">
+                <div class="field">
+                    <label for="enrollYear">Enroll Year</label>
+                    <select id="enrollYear">
+                        <option value="">Year</option>
+                        <option value="24">2024</option>
+                        <option value="23">2023</option>
+                        <option value="22">2022</option>
+                        <option value="21">2021</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="branch">Branch Code</label>
+                    <select id="branch">
+                        <option value="">Branch</option>
+                        <option value="SOCB">SOCB – CS</option>
+                        <option value="SOEB">SOEB – E&TC</option>
+                        <option value="SMEB">SMEB – Mech</option>
+                        <option value="SCIB">SCIB – Civil</option>
+                        <option value="SAIB">SAIB – AI</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field">
+                <label for="rollNo">Roll Number (4 digits)</label>
+                <input type="text" id="rollNo" placeholder="e.g. 1042" maxlength="4" autocomplete="off">
+                <div class="field-hint neutral" id="rollHint">Enter 4-digit roll number</div>
+            </div>
+        </div>
+
+        <div id="facultyFields">
+            <div class="field">
+                <label for="facId">Faculty ID (4 digits)</label>
+                <input type="text" id="facId" placeholder="e.g. 0042" maxlength="4" autocomplete="off">
+                <div class="field-hint neutral" id="facIdHint">Assigned by your department</div>
+            </div>
+            <div class="field">
+                <label for="department">Department</label>
+                <select id="department">
+                    <option value="">Select Department</option>
+                    <option value="CS">Computer Science</option>
+                    <option value="ENTC">Electronics &amp; Telecom</option>
+                    <option value="MECH">Mechanical</option>
+                    <option value="CIVIL">Civil</option>
+                    <option value="AI">Artificial Intelligence</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="designation">Designation</label>
+                <select id="designation">
+                    <option value="">Select Designation</option>
+                    <option value="Assistant Professor">Assistant Professor</option>
+                    <option value="Associate Professor">Associate Professor</option>
+                    <option value="Professor">Professor</option>
+                    <option value="HOD">Head of Department</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="field">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="you@mitadt.edu.in" autocomplete="off">
+            <div class="field-hint neutral" id="emailHint"></div>
+        </div>
+
+        <div class="field">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Min. 8 characters" autocomplete="new-password">
+            <div class="strength-bar">
+                <div class="strength-segment" id="seg1"></div>
+                <div class="strength-segment" id="seg2"></div>
+                <div class="strength-segment" id="seg3"></div>
+                <div class="strength-segment" id="seg4"></div>
+            </div>
+            <div class="field-hint neutral" id="passwordHint">Use letters, numbers &amp; symbols</div>
+        </div>
+
+        <div class="field">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" placeholder="Repeat your password" autocomplete="new-password">
+            <div class="field-hint neutral" id="confirmHint"></div>
+        </div>
+
+        <button class="btn-submit" id="signUpBtn" disabled>
+            Create Account <span class="btn-arrow">→</span>
+        </button>
+
+        <p class="form-footer-note">
+            Already have an account? <a href="login.html">Sign in here</a>
+        </p>
+
+    </div>
+
+    <div class="panel-image">
+        <img src="mit-adt-university.jpg" alt="MIT-ADT University campus">
+        <div class="panel-image-overlay"></div>
+        <div class="image-quote">
+            <span class="image-quote-mark">"</span>
+            <p class="image-quote-text" id="imageQuoteText">
+                Your journey begins<br>with a single <span>step.</span>
+            </p>
+            <div class="image-quote-attr">
+                <div class="attr-line"></div>
+                <span class="attr-text">Apoorv Platform</span>
+                <div class="attr-line"></div>
+            </div>
+        </div>
+        <div class="panel-image-branding">
+            <div class="brand-logo">A<span>poorv</span></div>
+            <p class="brand-tagline">Pune, Maharashtra</p>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentRole = 'student';
+
+function setRole(role) {
+    currentRole = role;
+
+    const slider = document.getElementById('roleSlider');
+    const btnS = document.getElementById('btnStudent');
+    const btnF = document.getElementById('btnFaculty');
+
+    slider.className = 'role-toggle-slider' + (role === 'faculty' ? ' faculty' : '');
+    btnS.className = 'role-toggle-btn' + (role === 'student' ? ' active' : '');
+    btnF.className = 'role-toggle-btn' + (role === 'faculty' ? ' active' : '');
+
+    document.getElementById('studentFields').style.display = role === 'student' ? 'block' : 'none';
+    document.getElementById('facultyFields').style.display = role === 'faculty' ? 'block' : 'none';
+
+    const subtitles = {
+        student: 'Create your student account to submit documents, track progress, and connect with faculty.',
+        faculty: 'Create your faculty account to review student submissions and manage approvals.'
+    };
+    document.getElementById('formSubtitle').textContent = subtitles[role];
+
+    const preview = document.getElementById('idPreview');
+    preview.classList.toggle('faculty-mode', role === 'faculty');
+    preview.classList.remove('visible');
+
+    updateIdPreview();
+    validateAll();
+}
+
+function updateIdPreview() {
+    const preview = document.getElementById('idPreview');
+    const previewValue = document.getElementById('idPreviewValue');
+
+    if (currentRole === 'student') {
+        const year = document.getElementById('enrollYear').value;
+        const branch = document.getElementById('branch').value;
+        const roll = document.getElementById('rollNo').value;
+        if (year && branch && /^\d{4}$/.test(roll)) {
+            previewValue.textContent = `ADT${year}${branch}${roll.padStart(4,'0')}`;
+            preview.classList.add('visible');
+        } else {
+            preview.classList.remove('visible');
+        }
+    } else {
+        const facId = document.getElementById('facId').value;
+        if (/^\d{4}$/.test(facId)) {
+            previewValue.textContent = `FAC${facId}`;
+            preview.classList.add('visible');
+        } else {
+            preview.classList.remove('visible');
+        }
+    }
+}
+
+function getStrength(pw) {
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (pw.length >= 12) score++;
+    if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+    if (/\d/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    return score <= 1 ? 'weak' : score <= 3 ? 'medium' : 'strong';
+}
+
+function updateStrengthBar(pw) {
+    const segs = ['seg1','seg2','seg3','seg4'].map(id => document.getElementById(id));
+    const hint = document.getElementById('passwordHint');
+    segs.forEach(s => s.className = 'strength-segment');
+
+    if (!pw) {
+        hint.textContent = 'Use letters, numbers & symbols';
+        hint.className = 'field-hint neutral';
+        return;
+    }
+    const strength = getStrength(pw);
+    if (strength === 'weak') {
+        segs[0].classList.add('weak');
+        hint.textContent = 'Too weak — add uppercase, numbers or symbols';
+        hint.className = 'field-hint error';
+    } else if (strength === 'medium') {
+        segs[0].classList.add('medium'); segs[1].classList.add('medium'); segs[2].classList.add('medium');
+        hint.textContent = 'Good — add more variety to strengthen';
+        hint.className = 'field-hint neutral';
+    } else {
+        segs.forEach(s => s.classList.add('strong'));
+        hint.textContent = '✓ Strong password';
+        hint.className = 'field-hint success';
+    }
+}
+
+function validateEmail(val) {
+    const hint = document.getElementById('emailHint');
+    const input = document.getElementById('email');
+    if (!val) { hint.textContent = ''; input.classList.remove('is-valid','is-invalid'); return false; }
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+    hint.textContent = ok ? '✓ Looks good' : 'Enter a valid email address';
+    hint.className = ok ? 'field-hint success' : 'field-hint error';
+    input.classList.toggle('is-valid', ok);
+    input.classList.toggle('is-invalid', !ok);
+    return ok;
+}
+
+function validateRoll() {
+    const val = document.getElementById('rollNo').value;
+    const hint = document.getElementById('rollHint');
+    const input = document.getElementById('rollNo');
+    const ok = /^\d{4}$/.test(val);
+    input.classList.toggle('is-valid', ok);
+    input.classList.toggle('is-invalid', val.length > 0 && !ok);
+    hint.textContent = ok ? '✓ Valid roll number' : (val.length > 0 ? 'Must be exactly 4 digits' : 'Enter 4-digit roll number');
+    hint.className = ok ? 'field-hint success' : (val.length > 0 ? 'field-hint error' : 'field-hint neutral');
+    return ok;
+}
+
+function validateFacId() {
+    const val = document.getElementById('facId').value;
+    const hint = document.getElementById('facIdHint');
+    const input = document.getElementById('facId');
+    const ok = /^\d{4}$/.test(val);
+    input.classList.toggle('is-valid', ok);
+    input.classList.toggle('is-invalid', val.length > 0 && !ok);
+    hint.textContent = ok ? '✓ Valid faculty ID' : (val.length > 0 ? 'Must be exactly 4 digits' : 'Assigned by your department');
+    hint.className = ok ? 'field-hint success' : (val.length > 0 ? 'field-hint error' : 'field-hint neutral');
+    return ok;
+}
+
+function validateConfirm() {
+    const pw = document.getElementById('password').value;
+    const cpw = document.getElementById('confirmPassword').value;
+    const hint = document.getElementById('confirmHint');
+    const input = document.getElementById('confirmPassword');
+    if (!cpw) { hint.textContent = ''; input.classList.remove('is-valid','is-invalid'); return false; }
+    const ok = pw === cpw;
+    hint.textContent = ok ? '✓ Passwords match' : 'Passwords do not match';
+    hint.className = ok ? 'field-hint success' : 'field-hint error';
+    input.classList.toggle('is-valid', ok);
+    input.classList.toggle('is-invalid', !ok);
+    return ok;
+}
+
+function validateAll() {
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const pw = document.getElementById('password').value;
+    const cpw = document.getElementById('confirmPassword').value;
+
+    let roleReady = false;
+    if (currentRole === 'student') {
+        const year = document.getElementById('enrollYear').value;
+        const branch = document.getElementById('branch').value;
+        const roll = document.getElementById('rollNo').value;
+        roleReady = !!(year && branch && /^\d{4}$/.test(roll));
+    } else {
+        const facId = document.getElementById('facId').value;
+        const dept = document.getElementById('department').value;
+        const desig = document.getElementById('designation').value;
+        roleReady = !!((/^\d{4}$/.test(facId)) && dept && desig);
+    }
+
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const strengthOk = pw ? getStrength(pw) !== 'weak' : false;
+    const confirmOk = pw === cpw && cpw !== '';
+
+    document.getElementById('signUpBtn').disabled =
+        !(firstName && lastName && roleReady && emailOk && strengthOk && confirmOk);
+}
+
+document.getElementById('firstName').addEventListener('input', validateAll);
+document.getElementById('lastName').addEventListener('input', validateAll);
+document.getElementById('email').addEventListener('input', () => { validateEmail(document.getElementById('email').value.trim()); validateAll(); });
+document.getElementById('password').addEventListener('input', () => { updateStrengthBar(document.getElementById('password').value); validateConfirm(); validateAll(); });
+document.getElementById('confirmPassword').addEventListener('input', () => { validateConfirm(); validateAll(); });
+
+document.getElementById('enrollYear').addEventListener('change', () => { updateIdPreview(); validateAll(); });
+document.getElementById('branch').addEventListener('change', () => { updateIdPreview(); validateAll(); });
+document.getElementById('rollNo').addEventListener('input', () => { validateRoll(); updateIdPreview(); validateAll(); });
+
+document.getElementById('facId').addEventListener('input', () => { validateFacId(); updateIdPreview(); validateAll(); });
+document.getElementById('department').addEventListener('change', validateAll);
+document.getElementById('designation').addEventListener('change', validateAll);
+
+document.getElementById('signUpBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('signUpBtn');
+    btn.disabled = true;
+    btn.textContent = 'Creating account…';
+
+    let username = '';
+    if (currentRole === 'student') {
+        const year = document.getElementById('enrollYear').value;
+        const branch = document.getElementById('branch').value;
+        const roll = document.getElementById('rollNo').value.padStart(4, '0');
+        username = `ADT${year}${branch}${roll}`;
+    } else {
+        username = `FAC${document.getElementById('facId').value}`;
+    }
+
+    const payload = {
+        username,
+        role: currentRole,
+        firstName: document.getElementById('firstName').value.trim(),
+        lastName: document.getElementById('lastName').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        password: document.getElementById('password').value,
+    };
+
+    if (currentRole === 'faculty') {
+        payload.department = document.getElementById('department').value;
+        payload.designation = document.getElementById('designation').value;
+    } else {
+        payload.enrollYear = document.getElementById('enrollYear').value;
+        payload.branch = document.getElementById('branch').value;
+        payload.rollNo = document.getElementById('rollNo').value;
+    }
+
+    try {
+        const res = await fetch('/api/auth/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            showToast(`✓ Account created! Your ID: ${username}`);
+            setTimeout(() => window.location.href = 'login.html', 1800);
+        } else {
+            showToast(data.message || 'Signup failed. Please try again.', true);
+            btn.disabled = false;
+            btn.innerHTML = 'Create Account <span class="btn-arrow">→</span>';
+        }
+    } catch (err) {
+        showToast('Network error — is the server running?', true);
+        btn.disabled = false;
+        btn.innerHTML = 'Create Account <span class="btn-arrow">→</span>';
+    }
+});
+
+function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.toggle('error', isError);
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>

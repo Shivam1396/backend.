@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apoorv — MIT-ADT University</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink:    #0d0d0d;
+            --cream:  #f5f0e8;
+            --gold:   #c9a84c;
+            --gold-lt:#e8d5a3;
+            --white:  #ffffff;
+            --muted:  #6b6560;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            overflow-x: hidden;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            min-height: 560px;
+            overflow: hidden;
+        }
+
+        .hero-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+            transform: scale(1.08);
+            animation: zoomOut 8s ease forwards;
+        }
+
+        @keyframes zoomOut {
+            to { transform: scale(1); }
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(to bottom,
+                    rgba(13,13,13,0.25) 0%,
+                    rgba(13,13,13,0.55) 55%,
+                    rgba(13,13,13,0.90) 100%);
+        }
+
+        .hero-stripe {
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 120px;
+            background: var(--cream);
+            clip-path: polygon(0 60%, 100% 0%, 100% 100%, 0% 100%);
+        }
+
+        .hero-content {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 0 7vw 140px;
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+            opacity: 0;
+            animation: riseUp 0.7s 0.3s ease forwards;
+        }
+
+        .eyebrow-line {
+            width: 36px;
+            height: 1.5px;
+            background: var(--gold);
+        }
+
+        .eyebrow-text {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold-lt);
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(52px, 9vw, 110px);
+            font-weight: 900;
+            color: var(--white);
+            line-height: 0.95;
+            letter-spacing: -3px;
+            margin-bottom: 24px;
+            opacity: 0;
+            animation: riseUp 0.8s 0.5s ease forwards;
+        }
+
+        .hero-title .dash {
+            color: var(--gold);
+            font-style: italic;
+            font-weight: 700;
+        }
+
+        .hero-sub {
+            max-width: 520px;
+            font-size: clamp(15px, 2vw, 18px);
+            font-weight: 300;
+            color: rgba(255,255,255,0.75);
+            line-height: 1.65;
+            margin-bottom: 36px;
+            opacity: 0;
+            animation: riseUp 0.8s 0.7s ease forwards;
+        }
+
+        .hero-sub em {
+            color: var(--gold-lt);
+            font-style: normal;
+            font-weight: 500;
+        }
+
+        .hero-cta {
+            opacity: 0;
+            animation: riseUp 0.8s 0.9s ease forwards;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--gold);
+            color: var(--ink);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 14px 28px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.25s, transform 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--gold-lt);
+            transform: translateY(-2px);
+        }
+
+        .btn-arrow {
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+
+        .btn-primary:hover .btn-arrow {
+            transform: translateX(4px);
+        }
+
+        /* ── TAGLINE SECTION ── */
+        .tagline-section {
+            background: var(--cream);
+            padding: 96px 7vw 80px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 64px;
+            align-items: center;
+        }
+
+        .tagline-left {
+            position: relative;
+        }
+
+        .tagline-left::before {
+            content: '"';
+            font-family: 'Playfair Display', serif;
+            font-size: 160px;
+            color: var(--gold);
+            opacity: 0.2;
+            position: absolute;
+            top: -60px;
+            left: -20px;
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        .tagline-quote {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(24px, 3.5vw, 38px);
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1.25;
+            letter-spacing: -0.5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tagline-quote span {
+            color: var(--gold);
+            font-style: italic;
+        }
+
+        .tagline-right {
+            border-left: 1.5px solid var(--gold);
+            padding-left: 40px;
+        }
+
+        .tagline-body {
+            font-size: 15px;
+            color: var(--muted);
+            line-height: 1.8;
+            margin-bottom: 28px;
+        }
+
+        .tagline-stats {
+            display: flex;
+            gap: 36px;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--ink);
+            letter-spacing: -1px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        /* ── BIG FOOTER ── */
+        footer {
+            background: var(--ink);
+            color: var(--white);
+        }
+
+        .footer-gold-bar {
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold) 0%, var(--gold-lt) 50%, transparent 100%);
+        }
+
+        .footer-main {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 56px;
+            padding: 72px 7vw 60px;
+        }
+
+        .footer-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--white);
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+            line-height: 1;
+        }
+
+        .footer-logo span { color: var(--gold); }
+
+        .footer-tagline {
+            font-size: 14px;
+            color: rgba(255,255,255,0.45);
+            line-height: 1.75;
+            max-width: 280px;
+            margin-bottom: 32px;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.5);
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .social-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .footer-col-title {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 20px;
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+        }
+
+        .footer-links li a {
+            font-size: 14px;
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links li a:hover { color: var(--white); }
+
+        .footer-contact-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-bottom: 16px;
+        }
+
+        .footer-contact-item:last-child { margin-bottom: 0; }
+
+        .contact-label {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+        }
+
+        .contact-val {
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .footer-divider {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            margin: 0 7vw;
+        }
+
+        .footer-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px 7vw 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-copy {
+            font-size: 12px;
+            color: rgba(255,255,255,0.3);
+            letter-spacing: 0.5px;
+        }
+
+        .footer-badges {
+            display: flex;
+            gap: 10px;
+        }
+
+        .badge {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 5px 12px;
+            border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.35);
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes riseUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 900px) {
+            .footer-main { grid-template-columns: 1fr 1fr; gap: 40px; }
+            .footer-brand-col { grid-column: 1 / -1; }
+        }
+
+        @media (max-width: 680px) {
+            .tagline-section { grid-template-columns: 1fr; gap: 40px; }
+            .tagline-right { border-left: none; border-top: 1.5px solid var(--gold); padding-left: 0; padding-top: 32px; }
+            .tagline-left::before { font-size: 100px; }
+            .hero-content { padding: 0 24px 120px; }
+            .footer-main { grid-template-columns: 1fr; gap: 36px; padding: 48px 7vw 40px; }
+            .footer-bottom { flex-direction: column; align-items: flex-start; padding: 20px 7vw 28px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO -->
+    <section class="hero">
+        <img src="mit-adt-university.jpg" alt="MIT-ADT University campus" class="hero-img">
+        <div class="hero-overlay"></div>
+        <div class="hero-stripe"></div>
+
+        <div class="hero-content">
+            <div class="hero-eyebrow">
+                <div class="eyebrow-line"></div>
+                <span class="eyebrow-text">MIT-ADT University</span>
+            </div>
+
+            <h1 class="hero-title">
+                Apoorv<span class="dash">—</span>
+            </h1>
+
+            <p class="hero-sub">
+                Redefining efficiency by turning <em>long processes</em>
+                into <em>lightning-fast results.</em>
+            </p>
+
+            <div class="hero-cta">
+                <a href="login.html" class="btn-primary">
+                    Discover More
+                    <span class="btn-arrow">→</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- TAGLINE / ABOUT -->
+    <section class="tagline-section" id="about">
+        <div class="tagline-left">
+            <blockquote class="tagline-quote">
+                Turning hours into
+                <span>seconds,</span>
+                complexity into
+                <span>clarity.</span>
+            </blockquote>
+        </div>
+
+        <div class="tagline-right">
+            <p class="tagline-body">
+                Apoorv is MIT-ADT University's next-generation efficiency platform —
+                built to eliminate bottlenecks, streamline approvals, and give
+                students and faculty their time back. Every workflow. Every process.
+                Done faster.
+            </p>
+            <div class="tagline-stats">
+                <div class="stat">
+                    <span class="stat-num">10×</span>
+                    <span class="stat-label">Faster</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-num">5K+</span>
+                    <span class="stat-label">Users</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-num">99%</span>
+                    <span class="stat-label">Uptime</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BIG FOOTER -->
+    <footer>
+        <div class="footer-gold-bar"></div>
+
+        <div class="footer-main">
+
+            <!-- Brand Column -->
+            <div class="footer-brand-col">
+                <div class="footer-logo">A<span>poorv</span></div>
+                <p class="footer-tagline">
+                    MIT-ADT University's next-generation efficiency platform —
+                    turning complexity into clarity, one workflow at a time.
+                </p>
+                <div class="footer-social">
+                    <a href="#" class="social-btn">in</a>
+                    <a href="#" class="social-btn">tw</a>
+                    <a href="#" class="social-btn">yt</a>
+                    <a href="#" class="social-btn">fb</a>
+                </div>
+            </div>
+
+            <!-- Platform Links -->
+            <div>
+                <p class="footer-col-title">Platform</p>
+                <ul class="footer-links">
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Workflows</a></li>
+                    <li><a href="#">Integrations</a></li>
+                    <li><a href="#">Approvals</a></li>
+                    <li><a href="#">Dashboard</a></li>
+                </ul>
+            </div>
+
+            <!-- University Links -->
+            <div>
+                <p class="footer-col-title">University</p>
+                <ul class="footer-links">
+                    <li><a href="#">About MIT-ADT</a></li>
+                    <li><a href="#">Academics</a></li>
+                    <li><a href="#">Research</a></li>
+                    <li><a href="#">Campus Life</a></li>
+                    <li><a href="#">Admissions</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact -->
+            <div>
+                <p class="footer-col-title">Contact</p>
+                <div class="footer-contact-item">
+                    <span class="contact-label">Address</span>
+                    <span class="contact-val">Loni Kalbhor, Pune<br>Maharashtra 412201</span>
+                </div>
+                <div class="footer-contact-item">
+                    <span class="contact-label">Email</span>
+                    <span class="contact-val">apoorv@mitadt.edu.in</span>
+                </div>
+                <div class="footer-contact-item">
+                    <span class="contact-label">Phone</span>
+                    <span class="contact-val">+91 20 3071 9000</span>
+                </div>
+            </div>
+
+        </div>
+
+        <hr class="footer-divider">
+
+        <div class="footer-bottom">
+            <p class="footer-copy">© 2025 Apoorv · MIT-ADT University · Pune, Maharashtra · All rights reserved</p>
+            <div class="footer-badges">
+                <span class="badge">ISO Certified</span>
+                <span class="badge">NAAC A+</span>
+                <span class="badge">UGC Approved</span>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
